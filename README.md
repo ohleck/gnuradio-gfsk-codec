@@ -51,6 +51,25 @@ After that, any user will be able to use USRP devices.
 
 ## Usage
 
+To run the flow directly from terminal:
+
+`python -u gfsk_rx.py -d "rtl_sdr=0" -s 2000000 -f 437500000 -b 1200 -w 25000 -g 1 -o "output.bin"`
+
+Whereas:
+
+-d determines the device used ("rtl_sdr = 0" for RTL-SDR and FunCUBE dongle and "uhd=0" for Ettus USRP)
+
+-s determines the sample rate (minimal and maximal values to be verified for each SDR)
+
+-f determines the central frequency
+
+-b determines the baudrate
+
+-w determines the bandwith of the input filter
+
+-g determines the gain of the demodulator block (1 is the recommended value)
+
+-o determines the name of the output file
 
 
 ### Examples
