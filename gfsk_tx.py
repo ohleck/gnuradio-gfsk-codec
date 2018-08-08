@@ -4,7 +4,7 @@
 # GNU Radio Python Flow Graph
 # Title: GFSK TX
 # Author: Gabriel Mariano Marcelino
-# Generated: Wed Aug  8 10:46:07 2018
+# Generated: Wed Aug  8 17:39:37 2018
 ##################################################
 
 
@@ -22,7 +22,7 @@ import time
 
 class gfsk_tx(gr.top_block):
 
-    def __init__(self, baudrate=1200, bin_file_input='/tmp/tx_data.bin', freq=437.5e6, samp_rate_tx=2000000, sdr_dev='uhd=0'):
+    def __init__(self, baudrate=1200, bin_file_input='/tmp/tx_data.bin', freq=437.5e6, samp_rate_tx=1000000, sdr_dev='uhd=0'):
         gr.top_block.__init__(self, "GFSK TX")
 
         ##################################################
@@ -157,7 +157,7 @@ def argument_parser():
         "-f", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(437.5e6),
         help="Set frequency [default=%default]")
     parser.add_option(
-        "-s", "--samp-rate-tx", dest="samp_rate_tx", type="intx", default=2000000,
+        "-s", "--samp-rate-tx", dest="samp_rate_tx", type="intx", default=1000000,
         help="Set samp_rate [default=%default]")
     parser.add_option(
         "-d", "--sdr-dev", dest="sdr_dev", type="string", default='uhd=0',

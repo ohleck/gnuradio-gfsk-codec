@@ -4,7 +4,7 @@
 # GNU Radio Python Flow Graph
 # Title: GFSK Receiver
 # Author: Gabriel Mariano Marcelino
-# Generated: Wed Aug  8 10:46:06 2018
+# Generated: Wed Aug  8 17:25:00 2018
 ##################################################
 
 
@@ -41,7 +41,7 @@ import wx
 
 class gfsk_rx(grc_wxgui.top_block_gui):
 
-    def __init__(self, default_bandwidth=20e3, default_baud=9600, default_bin_file_sink="/tmp/rx_data.bin", default_freq=437.5e6, default_gain=1, default_samp=1800000, sdr_dev="rtl=0"):
+    def __init__(self, default_bandwidth=20e3, default_baud=9600, default_bin_file_sink="/tmp/rx_data.bin", default_freq=437.5e6, default_gain=1, default_samp=1000000, sdr_dev="rtl=0"):
         grc_wxgui.top_block_gui.__init__(self, title="GFSK Receiver")
         _icon_path = "/usr/share/icons/hicolor/32x32/apps/gnuradio-grc.png"
         self.SetIcon(wx.Icon(_icon_path, wx.BITMAP_TYPE_ANY))
@@ -270,6 +270,9 @@ class gfsk_rx(grc_wxgui.top_block_gui):
         	1, samp_rate, bandwidth/2, bandwidth/2/6, firdes.WIN_HAMMING, 6.76))
         self.digital_clock_recovery_mm_xx_0 = digital.clock_recovery_mm_ff(samp_rate/(baudrate*100), 0.001, 0, 0.25, 0.001)
         self.digital_binary_slicer_fb_0 = digital.binary_slicer_fb()
+        self.blocks_unpacked_to_packed_xx_0 = blocks.unpacked_to_packed_bb(8, gr.GR_MSB_FIRST)
+        self.blocks_tagged_stream_to_pdu_0 = blocks.tagged_stream_to_pdu(blocks.byte_t, 'packet_len')
+        self.blocks_message_debug_0 = blocks.message_debug()
         self.blocks_file_sink_1 = blocks.file_sink(gr.sizeof_char*1, default_bin_file_sink, False)
         self.blocks_file_sink_1.set_unbuffered(False)
         self.analog_quadrature_demod_cf_0 = analog.quadrature_demod_cf(default_gain)
@@ -277,8 +280,11 @@ class gfsk_rx(grc_wxgui.top_block_gui):
         ##################################################
         # Connections
         ##################################################
+        self.msg_connect((self.blocks_tagged_stream_to_pdu_0, 'pdus'), (self.blocks_message_debug_0, 'print'))
         self.connect((self.analog_quadrature_demod_cf_0, 0), (self.low_pass_filter_1, 0))
+        self.connect((self.blocks_unpacked_to_packed_xx_0, 0), (self.blocks_tagged_stream_to_pdu_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_file_sink_1, 0))
+        self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_unpacked_to_packed_xx_0, 0))
         self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.digital_binary_slicer_fb_0, 0))
         self.connect((self.low_pass_filter_0, 0), (self.analog_quadrature_demod_cf_0, 0))
         self.connect((self.low_pass_filter_1, 0), (self.digital_clock_recovery_mm_xx_0, 0))
@@ -422,7 +428,7 @@ def argument_parser():
         "-g", "--default-gain", dest="default_gain", type="intx", default=1,
         help="Set default_gain [default=%default]")
     parser.add_option(
-        "-s", "--default-samp", dest="default_samp", type="eng_float", default=eng_notation.num_to_str(1800000),
+        "-s", "--default-samp", dest="default_samp", type="eng_float", default=eng_notation.num_to_str(1000000),
         help="Set default_samp [default=%default]")
     parser.add_option(
         "-d", "--sdr-dev", dest="sdr_dev", type="string", default="rtl=0",
