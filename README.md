@@ -13,7 +13,7 @@ Given the appropriate parameters, it is also a GMSK or FSK decoder/encoder.
 ## Installation
 
 - Dependencies installation. In a Debian-like distribution, these dependencies can be installed with the command: (tested on Ubuntu 18.04 x64)
-`sudo apt install gnuradio gr-osmosdr libgtkmm-3.0-1v5`
+`sudo apt install gnuradio gr-osmosdr`
 
 
 
