@@ -59,7 +59,7 @@ Whereas:
 
 -d determines the device used ("rtl_sdr = 0" for RTL-SDR and FunCUBE dongle and "uhd=0" for Ettus USRP)
 
--s determines the sample rate (minimal and maximal values to be verified for each SDR)
+-s determines the sampling rate (minimal and maximal values to be verified for each SDR)
 
 -f determines the central frequency
 
@@ -71,6 +71,7 @@ Whereas:
 
 -o determines the name of the output file
 
+**Note**: for the Ettus USRP at a sampling rate of more than 1 MHz implicates in an overflow and in the terminal it will be printed "O"s to flag the overflow. As the Ettus USRP accepts only fixed values of sampling rate (250 KHz, 500 KHz, 1 MHz, 2 MHz and 4 MHz), the maximal recommended sampling rate for this application is 1 MHz.
 
 ### Examples
 
