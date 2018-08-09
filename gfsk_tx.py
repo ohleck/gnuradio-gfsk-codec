@@ -4,7 +4,7 @@
 # GNU Radio Python Flow Graph
 # Title: GFSK TX
 # Author: Gabriel Mariano Marcelino
-# Generated: Wed Aug  8 17:39:37 2018
+# Generated: Thu Aug  9 16:33:12 2018
 ##################################################
 
 
@@ -15,6 +15,7 @@ from gnuradio import filter
 from gnuradio import gr
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
+from grc_gnuradio import blks2 as grc_blks2
 from optparse import OptionParser
 import osmosdr
 import time
@@ -22,14 +23,16 @@ import time
 
 class gfsk_tx(gr.top_block):
 
-    def __init__(self, baudrate=1200, bin_file_input='/tmp/tx_data.bin', freq=437.5e6, samp_rate_tx=1000000, sdr_dev='uhd=0'):
+    def __init__(self, baudrate=1200, default_input=0, default_ip_0='127.0.0.1', default_port_0=5000, freq=437.5e6, samp_rate_tx=1000000, sdr_dev='uhd=0'):
         gr.top_block.__init__(self, "GFSK TX")
 
         ##################################################
         # Parameters
         ##################################################
         self.baudrate = baudrate
-        self.bin_file_input = bin_file_input
+        self.default_input = default_input
+        self.default_ip_0 = default_ip_0
+        self.default_port_0 = default_port_0
         self.freq = freq
         self.samp_rate_tx = samp_rate_tx
         self.sdr_dev = sdr_dev
@@ -69,12 +72,30 @@ class gfsk_tx(gr.top_block):
         	verbose=False,
         	log=False,
         )
-        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_char*1, '/tmp/tx_data.bin', False)
+        self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(4, 1, "", False, gr.GR_MSB_FIRST)
+        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_char*1)
+        self.blks2_tcp_source_0 = grc_blks2.tcp_source(
+        	itemsize=gr.sizeof_char*1,
+        	addr=default_ip_0,
+        	port=default_port_0,
+        	server=True,
+        )
+        self.blks2_selector_0 = grc_blks2.selector(
+        	item_size=gr.sizeof_char*1,
+        	num_inputs=2,
+        	num_outputs=2,
+        	input_index=default_input,
+        	output_index=0,
+        )
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_file_source_0, 0), (self.digital_gfsk_mod_0, 0))
+        self.connect((self.blks2_selector_0, 1), (self.blocks_null_sink_0, 0))
+        self.connect((self.blks2_selector_0, 0), (self.digital_gfsk_mod_0, 0))
+        self.connect((self.blks2_tcp_source_0, 0), (self.blks2_selector_0, 0))
+        self.connect((self.blks2_tcp_source_0, 0), (self.blocks_repack_bits_bb_0, 0))
+        self.connect((self.blocks_repack_bits_bb_0, 0), (self.blks2_selector_0, 1))
         self.connect((self.digital_gfsk_mod_0, 0), (self.rational_resampler_xxx_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.osmosdr_sink_0, 0))
 
@@ -86,11 +107,24 @@ class gfsk_tx(gr.top_block):
         self.set_samp_rate(self.sps*self.baudrate)
         self.set_mod_index((1.0*self.deviation)/(1.0*self.baudrate)/0.5)
 
-    def get_bin_file_input(self):
-        return self.bin_file_input
+    def get_default_input(self):
+        return self.default_input
 
-    def set_bin_file_input(self, bin_file_input):
-        self.bin_file_input = bin_file_input
+    def set_default_input(self, default_input):
+        self.default_input = default_input
+        self.blks2_selector_0.set_input_index(int(self.default_input))
+
+    def get_default_ip_0(self):
+        return self.default_ip_0
+
+    def set_default_ip_0(self, default_ip_0):
+        self.default_ip_0 = default_ip_0
+
+    def get_default_port_0(self):
+        return self.default_port_0
+
+    def set_default_port_0(self, default_port_0):
+        self.default_port_0 = default_port_0
 
     def get_freq(self):
         return self.freq
@@ -151,8 +185,14 @@ def argument_parser():
         "-b", "--baudrate", dest="baudrate", type="intx", default=1200,
         help="Set baudrate [default=%default]")
     parser.add_option(
-        "-o", "--bin-file-input", dest="bin_file_input", type="string", default='/tmp/tx_data.bin',
-        help="Set input_file [default=%default]")
+        "-q", "--default-input", dest="default_input", type="intx", default=0,
+        help="Set Input [default=%default]")
+    parser.add_option(
+        "-i", "--default-ip-0", dest="default_ip_0", type="string", default='127.0.0.1',
+        help="Set default_ip_0 [default=%default]")
+    parser.add_option(
+        "-p", "--default-port-0", dest="default_port_0", type="intx", default=5000,
+        help="Set default_port_0 [default=%default]")
     parser.add_option(
         "-f", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(437.5e6),
         help="Set frequency [default=%default]")
@@ -171,7 +211,7 @@ def main(top_block_cls=gfsk_tx, options=None):
     if gr.enable_realtime_scheduling() != gr.RT_OK:
         print "Error: failed to enable real-time scheduling."
 
-    tb = top_block_cls(baudrate=options.baudrate, bin_file_input=options.bin_file_input, freq=options.freq, samp_rate_tx=options.samp_rate_tx, sdr_dev=options.sdr_dev)
+    tb = top_block_cls(baudrate=options.baudrate, default_input=options.default_input, default_ip_0=options.default_ip_0, default_port_0=options.default_port_0, freq=options.freq, samp_rate_tx=options.samp_rate_tx, sdr_dev=options.sdr_dev)
     tb.start()
     tb.wait()
 
