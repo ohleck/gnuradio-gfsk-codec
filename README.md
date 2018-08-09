@@ -51,9 +51,9 @@ After that, any user will be able to use USRP devices.
 
 ## Usage
 
-To run the flow directly from terminal:
+### To run the flow directly from terminal:
 
-`python -u gfsk_rx.py -d "rtl_sdr=0" -s 2000000 -f 437500000 -b 1200 -w 25000 -g 1 -o "output.bin"`
+`python2.7 -u gfsk_rx.py -d "rtl_sdr=0" -s 2000000 -f 437500000 -b 1200 -w 25000 -g 1 -o "/dev/null" -i "127.0.0.1" -p 3000`
 
 Whereas:
 
@@ -69,9 +69,21 @@ Whereas:
 
 -g determines the gain of the demodulator block (1 is the recommended value)
 
--o determines the name of the output file
+-o determines the name of the output file -- "/dev/null" allows to discard the file directly
+
+-i determines the ip adress of the TCP server
+
+-p determines the port of the TCP server
 
 **Note**: for the Ettus USRP at a sampling rate of more than 1 MHz implicates in an overflow and in the terminal it will be printed "O"s to flag the overflow. As the Ettus USRP accepts only fixed values of sampling rate (250 KHz, 500 KHz, 1 MHz, 2 MHz and 4 MHz), the maximal recommended sampling rate for this application is 1 MHz.
+
+### To verify if the flow works
+
+To be able to verify if the server works this commenad should be used in the terminal:
+
+'nc 127.0.0.1 3000 | hexdump'
+
+This command connects a client to the TCP server created and receives the data from it, while grouping the bits into a hexadecimal code. 
 
 ### Examples
 
