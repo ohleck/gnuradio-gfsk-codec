@@ -4,7 +4,7 @@
 # GNU Radio Python Flow Graph
 # Title: GFSK Receiver
 # Author: Gabriel Mariano Marcelino
-# Generated: Thu Aug  9 16:34:11 2018
+# Generated: Fri Aug 10 12:20:45 2018
 ##################################################
 
 
@@ -25,7 +25,7 @@ import time
 
 class gfsk_rx(gr.top_block):
 
-    def __init__(self, default_bandwidth=20e3, default_baud=9600, default_bin_file_sink="/tmp/rx_data.bin", default_access_code='0000110001010010010011110100001000110011010000010010110101000010', default_freq=437.5e6, default_gain=1, default_input=0, default_ip_0='127.0.0.1', default_port_0=5000, default_samp=1000000, sdr_dev="rtl=0"):
+    def __init__(self, default_bandwidth=20e3, default_baud=9600, default_bin_file_sink="/tmp/rx_data.bin", default_freq=437.5e6, default_gain=1, default_ip_0='127.0.0.1', default_port_0=5000, default_samp=1000000, sdr_dev="rtl=0"):
         gr.top_block.__init__(self, "GFSK Receiver")
 
         ##################################################
@@ -34,10 +34,8 @@ class gfsk_rx(gr.top_block):
         self.default_bandwidth = default_bandwidth
         self.default_baud = default_baud
         self.default_bin_file_sink = default_bin_file_sink
-        self.default_access_code = default_access_code
         self.default_freq = default_freq
         self.default_gain = default_gain
-        self.default_input = default_input
         self.default_ip_0 = default_ip_0
         self.default_port_0 = default_port_0
         self.default_samp = default_samp
@@ -65,7 +63,6 @@ class gfsk_rx(gr.top_block):
         	1, default_samp, default_bandwidth/2, default_bandwidth/2/6, firdes.WIN_HAMMING, 6.76))
         self.digital_clock_recovery_mm_xx_0 = digital.clock_recovery_mm_ff(default_samp/(default_baud*100), 0.001, 0, 0.25, 0.001)
         self.digital_binary_slicer_fb_0 = digital.binary_slicer_fb()
-        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_char*1)
         self.blocks_file_sink_1 = blocks.file_sink(gr.sizeof_char*1, default_bin_file_sink, False)
         self.blocks_file_sink_1.set_unbuffered(False)
         self.blks2_tcp_sink_0 = grc_blks2.tcp_sink(
@@ -74,31 +71,14 @@ class gfsk_rx(gr.top_block):
         	port=default_port_0,
         	server=True,
         )
-        self.blks2_selector_0 = grc_blks2.selector(
-        	item_size=gr.sizeof_char*1,
-        	num_inputs=2,
-        	num_outputs=2,
-        	input_index=default_input,
-        	output_index=1,
-        )
-        self.blks2_packet_decoder_0 = grc_blks2.packet_demod_b(grc_blks2.packet_decoder(
-        		access_code=default_access_code,
-        		threshold=-1,
-        		callback=lambda ok, payload: self.blks2_packet_decoder_0.recv_pkt(ok, payload),
-        	),
-        )
         self.analog_quadrature_demod_cf_0 = analog.quadrature_demod_cf(default_gain)
 
         ##################################################
         # Connections
         ##################################################
         self.connect((self.analog_quadrature_demod_cf_0, 0), (self.low_pass_filter_1, 0))
-        self.connect((self.blks2_packet_decoder_0, 0), (self.blks2_selector_0, 1))
-        self.connect((self.blks2_selector_0, 1), (self.blks2_tcp_sink_0, 0))
-        self.connect((self.blks2_selector_0, 1), (self.blocks_file_sink_1, 0))
-        self.connect((self.blks2_selector_0, 0), (self.blocks_null_sink_0, 0))
-        self.connect((self.digital_binary_slicer_fb_0, 0), (self.blks2_packet_decoder_0, 0))
-        self.connect((self.digital_binary_slicer_fb_0, 0), (self.blks2_selector_0, 0))
+        self.connect((self.digital_binary_slicer_fb_0, 0), (self.blks2_tcp_sink_0, 0))
+        self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_file_sink_1, 0))
         self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.digital_binary_slicer_fb_0, 0))
         self.connect((self.low_pass_filter_0, 0), (self.analog_quadrature_demod_cf_0, 0))
         self.connect((self.low_pass_filter_1, 0), (self.digital_clock_recovery_mm_xx_0, 0))
@@ -126,12 +106,6 @@ class gfsk_rx(gr.top_block):
         self.default_bin_file_sink = default_bin_file_sink
         self.blocks_file_sink_1.open(self.default_bin_file_sink)
 
-    def get_default_access_code(self):
-        return self.default_access_code
-
-    def set_default_access_code(self, default_access_code):
-        self.default_access_code = default_access_code
-
     def get_default_freq(self):
         return self.default_freq
 
@@ -145,13 +119,6 @@ class gfsk_rx(gr.top_block):
     def set_default_gain(self, default_gain):
         self.default_gain = default_gain
         self.analog_quadrature_demod_cf_0.set_gain(self.default_gain)
-
-    def get_default_input(self):
-        return self.default_input
-
-    def set_default_input(self, default_input):
-        self.default_input = default_input
-        self.blks2_selector_0.set_input_index(int(self.default_input))
 
     def get_default_ip_0(self):
         return self.default_ip_0
@@ -194,17 +161,11 @@ def argument_parser():
         "-o", "--default-bin-file-sink", dest="default_bin_file_sink", type="string", default="/tmp/rx_data.bin",
         help="Set default_bin_file_sink [default=%default]")
     parser.add_option(
-        "-a", "--default-access-code", dest="default_access_code", type="string", default='0000110001010010010011110100001000110011010000010010110101000010',
-        help="Set default_access_code [default=%default]")
-    parser.add_option(
         "-f", "--default-freq", dest="default_freq", type="eng_float", default=eng_notation.num_to_str(437.5e6),
         help="Set default_freq [default=%default]")
     parser.add_option(
         "-g", "--default-gain", dest="default_gain", type="intx", default=1,
         help="Set default_gain [default=%default]")
-    parser.add_option(
-        "-q", "--default-input", dest="default_input", type="intx", default=0,
-        help="Set Input [default=%default]")
     parser.add_option(
         "-i", "--default-ip-0", dest="default_ip_0", type="string", default='127.0.0.1',
         help="Set default_ip_0 [default=%default]")
@@ -226,7 +187,7 @@ def main(top_block_cls=gfsk_rx, options=None):
     if gr.enable_realtime_scheduling() != gr.RT_OK:
         print "Error: failed to enable real-time scheduling."
 
-    tb = top_block_cls(default_bandwidth=options.default_bandwidth, default_baud=options.default_baud, default_bin_file_sink=options.default_bin_file_sink, default_access_code=options.default_access_code, default_freq=options.default_freq, default_gain=options.default_gain, default_input=options.default_input, default_ip_0=options.default_ip_0, default_port_0=options.default_port_0, default_samp=options.default_samp, sdr_dev=options.sdr_dev)
+    tb = top_block_cls(default_bandwidth=options.default_bandwidth, default_baud=options.default_baud, default_bin_file_sink=options.default_bin_file_sink, default_freq=options.default_freq, default_gain=options.default_gain, default_ip_0=options.default_ip_0, default_port_0=options.default_port_0, default_samp=options.default_samp, sdr_dev=options.sdr_dev)
     tb.start()
     try:
         raw_input('Press Enter to quit: ')
