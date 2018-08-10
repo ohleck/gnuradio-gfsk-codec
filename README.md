@@ -53,7 +53,7 @@ After that, any user will be able to use USRP devices.
 
 ### 3.1 To run the RX flow directly from terminal:
 
-`python2.7 -u gfsk_rx.py -d "rtl_sdr=0" -s 2000000 -f 437500000 -b 9600 -w 25000 -g 1 -o "a.out" -i "127.0.0.1" -p 8000 -q 0 -a "11111111111111"`
+`python2.7 -u gfsk_rx.py -d "rtl_sdr=0" -s 2000000 -f 437500000 -b 9600 -w 25000 -g 1 -o "a.out" -i "127.0.0.1" -p 8000`
 
 Whereas:
 
@@ -74,10 +74,6 @@ Whereas:
 -i determines the ip adress of the TCP server
 
 -p determines the port of the TCP server
-
--q determines if the output is the raw bit stream or if it synchronized by the sync word (0 for raw output and 1 for synchronized output)
-
--a is the sync word (binary)
 
 **Note**: for the Ettus USRP at a sampling rate of more than 1 MHz implicates in an overflow and in the terminal it will be printed "O"s to flag the overflow. As the Ettus USRP accepts only fixed values of sampling rate (250 KHz, 500 KHz, 1 MHz, 2 MHz and 4 MHz), the maximal recommended sampling rate for this application is 1 MHz.
 
