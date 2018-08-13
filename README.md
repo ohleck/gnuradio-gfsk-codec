@@ -121,8 +121,11 @@ To fully automate the RX flow from the terminal a bash script is used. To run it
 
 **Note**: in this case the RX options are hardcoded in the script, if needed to change/know just look the `spawn` line.
 
-### Examples
+### 4.  Examples
 
 
+#### 4.1 Netcat server to test
 
+This code allows the creation of a NetCat TCP server to fully test the python parser code, to do this it is needed to modify the *a.out* file in the repository by adding your sync word anywhere and then run this command + python script (it only sends data once the server is connected to the client):
 
+`nc - l 127.0.0.1 4000 < a.out`
