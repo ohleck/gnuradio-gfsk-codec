@@ -105,6 +105,22 @@ i determines the ip adress of the TCP server
 
 -q determines if the input file should be a raw bitstream or an lower case hexadecimal stream (0 for binary stream or 1 for hexadecimal stream)
 
+## 3.3 Automate RX flow from the terminal
+
+### 3.3.1 Dependencies
+
+To be able to run the bash terminal it is necessary to install (in a Debian like distribuition):
+
+`$ sudo apt install expect `
+
+### 3.3.2 Running the script
+
+To fully automate the RX flow from the terminal a bash script is used. To run it you should run the command:
+
+`while true; do expect my_expect.exp; done`
+
+**Note**: in this case the RX options are hardcoded in the script, if needed to change/know just look the `spawn` line.
+
 ### Examples
 
 
