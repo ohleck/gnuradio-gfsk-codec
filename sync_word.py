@@ -12,19 +12,20 @@ stdout = os.fdopen(sys.stdout.fileno(), 'wb', 0)
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument ('syncword', required=True)#Entry to the sync word
+parser.add_argument ('-syncword', required=True)#Entry to the sync word
 parser.add_argument ('-ip', required =True) # IP Address
-parser.add_argument ('payload', type=int, required=True) #Payload size
+parser.add_argument ('-payload', type=int, required=True) #Payload size
 parser.add_argument ('-port', type=long, required =True) # Port number
 args = parser.parse_args() 
 
-sync_word_list = list(synword)
+sync_word_list = list(args.syncword)
 bits_out = list()
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #Creates the client socket
 
 client_socket.connect((args.ip, args.port)) #Connects the client to the server
 
+length_sync = len(sync_word_list)
 i = 0
 
 while True:
@@ -34,14 +35,15 @@ while True:
 		break
 	bits = bytearray(data)
 	bits_comp = binascii.b2a_hex(bits)
-	if (bits_comp == sync_word_list[i]) and (i < size(sync_word_list)): #comparing each element
+	if (bits_comp == sync_word_list[i]) and (i < length_sync): #comparing each element
 		bits_out.append(str(bits_comp))
 		i = i + 1
-	elif i < (size(sync_word_list) + payload): #allowing payload
+	elif (i >= length_sync) and (i < (len(sync_word_list) + args.payload)): #allowing payload
 		bits_out.append(str(bits_comp))
 		i = i +1
 	else: #printing all
 		stdout.write("".join(bits_out))
+		stdout.write('\n printed\n')
 		bits_out = list() #deletign all the lit
 client_socket.close()
 
