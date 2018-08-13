@@ -12,7 +12,7 @@ stdout = os.fdopen(sys.stdout.fileno(), 'wb', 0)
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument ('-syncword', required=True)#Entry to the sync word
+parser.add_argument ('-syncword',type=bytearray, required=True)#Entry to the sync word
 parser.add_argument ('-ip', required =True) # IP Address
 parser.add_argument ('-payload', type=int, required=True) #Payload size
 parser.add_argument ('-port', type=long, required =True) # Port number
@@ -39,20 +39,18 @@ while True:
 	else:
 		bits = bytearray(data) #received bits
 		bits_comp = binascii.b2a_hex(bits) #conversion to something readble
+		stdout.write(str(bits_comp))
 
-		if (bits_comp == sync_word_list[i]) and (i < length_sync): #comparing each element
-			bits_list.append(bits_comp) #adding bits to an array
-			stdout.write('\n printed\n')
+		if (str(bits_comp) == sync_word_list[i]) and (i < length_sync): #comparing each element
+			bits_list.append(str(bits_comp)) #adding bits to an array
 			i = i + 1
-			str_i = str(i)
-			stdout.write('\n i = str_i \n')
 		elif (i >= length_sync) and (i < (len(sync_word_list) + args.payload)): #allowing payload
-			bits_list.append(bits_comp) #Creating a list with the elements
+			bits_list.append(str(bits_comp)) #Creating a list with the elements
 			i = i +1
-		elif i ==(len(sync_word_list) + args.payload): #printing output
-			bits_out = bytearray(bits_list) #Creating a string to print ---> not working
+		elif i == (len(sync_word_list) + args.payload): #printing output
+			bits_out = "".join(bits_list) #Creating a string to print ---> not working
 			stdout.write(bits_out)
-			stdout.write('\n printed\n')
+			stdout.write('\n printed output\n')
 			bits_list = list() #restarting the list
 			i = 0
 client_socket.close()
