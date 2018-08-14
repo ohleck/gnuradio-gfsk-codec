@@ -100,7 +100,9 @@ To be able to run the bash terminal it is necessary to install (in a Debian like
 
 To fully automate the RX flow from the terminal a bash script is used. To run it you should run the command:
 
-`while true; do expect gfsk_RX_starting_loop.exp; done`
+`while true; do expect gfsk_RX_starting_loop.sh gfsk_rx.py "rtl_sdr=0" 1000000 437500000 9600 25000 "/dev/null" "127.0.0.1" 7000 ; done`
+
+This codes input already the parameters in the same order as the python execution code.
 
 **Note**: in this case the RX options are hardcoded in the script, if needed to change/know just look the `spawn` line.
 

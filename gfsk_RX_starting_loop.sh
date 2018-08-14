@@ -1,7 +1,18 @@
 #!/usr/bin/expect
 set timeout -1
+set code [lindex $argv 0]
+set device [lindex $argv 1]
+set sample [lindex $argv 2]
+set frequency [lindex $argv 3]
+set baud [lindex $argv 4]
+set bandwidth [lindex $argv 5]
+set output [lindex $argv 6]
+set ip [lindex $argv 7]
+set port [lindex $argv 8]
 
-spawn python2.7 -u gfsk_rx.py -d "rtl_sdr=0" -s 1000000 -f 437500000 -b 9600 -w 25000 -g 1 -o "/dev/null" -i "127.0.0.1" -p 7000 
+
+
+spawn python2.7 -u $code -d $device -s $sample -f $frequency -b $baud -w $bandwidth -g 1 -o $output -i $ip -p $port 
 
 expect "Press Enter to quit: file_descriptor_sink"
 send -- 'r'
