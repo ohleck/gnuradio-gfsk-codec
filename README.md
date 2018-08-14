@@ -28,9 +28,9 @@ Currently, the program works with the following SDR devices:
 After the installation of the dependencies, the first two does not require any additional procedure. But, to use a USRP SDR, there is one more step described below:
 `TODO: confirm if the source runs with mentioned SDR families without any chance, or some minor tweak is needed. List SDR models fully tested.`
 
-### 2.2 Configuring the USRP
+### 2.2 Configuring permissions
 
-Before the first use of the USRP, it is necessary to download the FPGA images to the computer. This can be done with the following command:
+Before the first use of the any of the SDRs, it is necessary to download the FPGA images to the computer. This can be done with the following command:
 
 `sudo uhd_images_downloader`
 
@@ -51,11 +51,11 @@ After that, any user will be able to use USRP devices.
 
 ## 3. Usage
 
-### 3.1 To run the RX flow directly from terminal:
+**Disclaimer**: All the usage codes are for the application of the Ettus USRP, for other SDRs you may need to change the parameters to the acceptable/ideal for it.
 
-`python2.7 -u gfsk_rx.py -d "rtl_sdr=0" -s 2000000 -f 437500000 -b 9600 -w 25000 -g 1 -o "a.out" -i "127.0.0.1" -p 8000`
+### 3.1 To run the TX and RX flow directly from terminal:
 
-Whereas:
+Parameters:
 
 -d determines the device used ("rtl_sdr = 0" for RTL-SDR and FunCUBE dongle and "uhd=0" for Ettus USRP)
 
@@ -65,67 +65,56 @@ Whereas:
 
 -b determines the baudrate
 
--w determines the bandwith of the input filter
+-w determines the bandwith of the input filter (**RX only**)
 
--g determines the gain of the demodulator block (1 is the recommended value)
+-g determines the gain of the demodulator block (1 is the recommended value) (**RX only**)
 
--o determines the name of the output file -- "/dev/null" allows to discard the file directly
+-o determines the name of the output file -- "/dev/null" allows to discard the file directly (**RX only**)
 
 -i determines the ip adress of the TCP server
 
 -p determines the port of the TCP server
 
+-q determines if the input file should be a raw bitstream or an lower case hexadecimal stream (0 for binary stream or 1 for hexadecimal stream) (**TX only**)
+
 **Note**: for the Ettus USRP at a sampling rate of more than 1 MHz implicates in an overflow and in the terminal it will be printed "O"s to flag the overflow. As the Ettus USRP accepts only fixed values of sampling rate (250 KHz, 500 KHz, 1 MHz, 2 MHz and 4 MHz), the maximal recommended sampling rate for this application is 1 MHz.
 
-#### 3.1.1 To verify if the flow works
+#### 3.1.1 For RX only
+
+`python2.7 -u gfsk_rx.py -d "rtl_sdr=0" -s 1000000 -f 437500000 -b 9600 -w 25000 -g 1 -o "/dev/null" -i "127.0.0.1" -p 7000`
+
+##### 3.1.1.1 To verify if the flow works
+
 
 To be able to verify if the server works this commenad should be used in the terminal:
 
-`nc 127.0.0.1 3000 | hexdump`
+`nc 127.0.0.1 7000 | hexdump`
 
 This command connects a client to the TCP server created and receives the data from it, while grouping the bits into a hexadecimal code. 
 
-### 3.2 To run the TX flow directly from terminal:
-
-`python2.7 -u gfsk_tx.py -d "rtl_sdr=0" -s 2000000 -f 437500000 -b 9600 -i "127.0.0.1" -p 8000 -q 0`
-
-Whereas:
-
--d determines the device used ("rtl_sdr = 0" for RTL-SDR and FunCUBE dongle and "uhd=0" for Ettus USRP)
-
--s determines the sampling rate (minimal and maximal values to be verified for each SDR)
-
--f determines the central frequency
-
--b determines the baudrate
-
-i determines the ip adress of the TCP server
-
--p determines the port of the TCP server
-
--q determines if the input file should be a raw bitstream or an lower case hexadecimal stream (0 for binary stream or 1 for hexadecimal stream)
-
-## 3.3 Automate RX flow from the terminal
-
-### 3.3.1 Dependencies
+##### 3.1.1.2 To automate RX flow from the terminal
 
 To be able to run the bash terminal it is necessary to install (in a Debian like distribuition):
 
 `$ sudo apt install expect `
 
-### 3.3.2 Running the script
-
 To fully automate the RX flow from the terminal a bash script is used. To run it you should run the command:
 
-`while true; do expect my_expect.exp; done`
+`while true; do expect gfsk_RX_starting_loop.exp; done`
 
 **Note**: in this case the RX options are hardcoded in the script, if needed to change/know just look the `spawn` line.
 
+#### 3.1.2 For TX only 
+
+`python2.7 -u gfsk_tx.py -d "rtl_sdr=0" -s 1000000 -f 437500000 -b 9600 -i "127.0.0.1" -p 7000 -q 0`
+
 ### 4.  Examples
 
+This is section describes how to run the examples
 
 #### 4.1 Netcat server to test
 
-This code allows the creation of a NetCat TCP server to fully test the python parser code, to do this it is needed to modify the *a.out* file in the repository by adding your sync word anywhere and then run this command + python script (it only sends data once the server is connected to the client):
+This code allows the creation of a NetCat TCP server to fully test the python parser code, to do this it is needed to modify the *gfsk_sample.bin* file in the repository by adding your sync word anywhere and then run this command + python script (it only sends data once the server is connected to the client):
 
-`nc - l 127.0.0.1 4000 < a.out`
+`cd samples`
+`nc - l 127.0.0.1 7000 < gfsk_sample.bin`
