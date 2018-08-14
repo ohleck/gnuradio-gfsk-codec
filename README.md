@@ -114,7 +114,6 @@ This is section describes how to run the examples
 
 #### 4.1 Netcat server to test
 
-This code allows the creation of a NetCat TCP server to fully test the python parser code, to do this it is needed to modify the *gfsk_sample.bin* file in the repository by adding your sync word anywhere and then run this command + python script (it only sends data once the server is connected to the client):
+This code allows the creation of a NetCat TCP server to fully test the python parser code, in a infinite loop. To do this it is needed to modify the *gfsk_sample.bin* file in the repository by adding your sync word anywhere and then run this command + python script (it only sends data once the server is connected to the client):
 
-`cd samples`
-`nc - l 127.0.0.1 7000 < gfsk_sample.bin`
+`while true; do nc -l 127.0.0.1 7000 < samples/gfsk_sample.bin; done`
