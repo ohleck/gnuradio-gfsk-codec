@@ -121,4 +121,5 @@ This code allows the creation of a NetCat TCP server to fully test the python pa
 `while true; do nc -l 127.0.0.1 7000 < samples/gfsk_sample.bin; done`
 
 Filter stream and display only the desired packet (sync word + N bytes):
-`./streamFilter.py -ip localhost -port 7000 -syncWord 0x53 -packet_length 4 -display_time -verbose`
+`./syncWordStreamFilter.py -ip localhost -port 7000 -syncWord 0x53 -packet_length 4 -display_time`
+(optionally add `-verbose` to display the raw content under analysis)

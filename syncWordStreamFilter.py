@@ -2,7 +2,7 @@
 import socket, argparse, datetime, sys
 
 # Usage:
-# ./streamFilter.py -ip localhost -port 7000 -syncWord 0x53 -packet_length 4 -display_time
+# ./syncWordStreamFilter.py -ip localhost -port 7000 -syncWord 0x53 -packet_length 4 -display_time
 #
 # Optional: -verbose | -display_time
 #
@@ -32,8 +32,9 @@ if (len(args.syncWord)%2) != 0:
 # Store the sync word as a decimal value
 syncWord = int(args.syncWord,16)
 syncWord_len = (len(args.syncWord)/2)-1
-syncWord_bin = bin(syncWord)
-if args.verbose: print 'Seeking input stream for sync word:', hex(syncWord) ,'- Length:',syncWord_len,'bytes - Decimal:', syncWord ,'- Binary:', syncWord_bin
+# syncWord_bin = bin(syncWord)
+syncWord_bin = "{0:#0{1}b}".format(syncWord, 2+syncWord_len*8)
+if args.verbose: print 'Seeking input stream for sync word:', hex(syncWord) ,'(syncWord length:',syncWord_len,'B)', 'Binary:', syncWord_bin, 'Decimal:', syncWord
 
 
 if args.verbose: print 'Connecting to', args.ip, args.port
@@ -55,32 +56,33 @@ def readByteChunk(length):
   # loop through N single reads instead of socket buffer to avoid network dellays / buffer sizes mismatches issues
   for n in range(length):
     inputByte_str = client_socket.recv(1) 
-    
     if not inputByte_str:
       if args.verbose: print 'Connection Lost!'
       client_socket.close()
       exit()
-
     readBuffer.append(inputByte_str)  
-
   return readBuffer
 
 # fill the comparison buffer with the syncWord size
+# print "Filling buffers..."
 comparisonBuffer = 0
 for n in range(syncWord_len):
-  inputBuffer = readNextByte()
-  comparisonBuffer = (comparisonBuffer<<8)+inputBuffer
+  inputBuffer = (readNextByte() & 0b11111111 )
+  comparisonBuffer = (comparisonBuffer<<8 ) | inputBuffer
+  # print 'inputBuffer:\t', "  {0:#0{1}b}".format(inputBuffer, 2+syncWord_len*8), "{0:#0{1}x}".format(inputBuffer,2+syncWord_len*2) 
+  # print 'comparisonBuffer:', "{0:#0{1}b}".format(comparisonBuffer, 2+syncWord_len*8), "{0:#0{1}x}".format(comparisonBuffer,2+syncWord_len*2) 
 
 
 streamBytePosition = 0
 while True: 
-
   inputBuffer = readNextByte() # keeps one extra byte already in the buffer, for the next bitwise rotations
 
   # Rotate and analyzes locally the input stream in steps of 8 bits 
   # because the TCP source (inputBuffer) is read byte (not bit per bit)
   for localBitPosition in range(8):
-    if args.verbose: print 'Processing bit:', (streamBytePosition*8)+localBitPosition, '\tcomparisonBuffer:', format(comparisonBuffer, '#010b'), "{0:#0{1}x}".format(comparisonBuffer,4), '\tStream byte:', streamBytePosition
+
+    # if args.verbose: print 'Processing bit:', (streamBytePosition*8)+localBitPosition, 'Byte:', streamBytePosition, '\tcomparisonBuffer:', format(comparisonBuffer, '#010b'), "{0:#0{1}x}".format(comparisonBuffer,2+syncWord_len*2) 
+    if args.verbose: print 'Processing bit:', (streamBytePosition*8)+localBitPosition, 'Byte:', streamBytePosition, '\tcomparisonBuffer:', "{0:#0{1}b}".format(comparisonBuffer, 2+syncWord_len*8), "{0:#0{1}x}".format(comparisonBuffer,2+syncWord_len*2) 
     
     if comparisonBuffer == syncWord:
       if args.verbose: print "\nSYNC WORD",hex(syncWord),"FOUND!",'streamBytePosition:',streamBytePosition
@@ -97,7 +99,7 @@ while True:
      
     # print "Moving comparisonBuffer to the next bit:",n
     nextBit = int( format(inputBuffer, '#010b')[localBitPosition+2] ,2) # Removes the '0b' prefix from the formating representation
-    comparisonBuffer = ( comparisonBuffer<<1 & 0b11111111 ) | nextBit
+    comparisonBuffer = ( comparisonBuffer<<1 & 0b1111111111111111 ) | nextBit
 
   streamBytePosition = streamBytePosition + 1
 
