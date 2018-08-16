@@ -63,6 +63,15 @@ def readByteChunk(length):
     readBuffer.append(inputByte_str)  
   return readBuffer
 
+def debugPrintBuffers():
+  print '\033[92m'+'comparisonBuffer:', "{0:#0{1}b}".format(comparisonBuffer, 2+syncWord_len*8), "{0:#0{1}x}".format(comparisonBuffer,2+syncWord_len*2),
+  print '\033[93m'+'nextBit:', bin(nextBit),
+  print '\033[95m'+'inputBuffer:',
+  binStr = str("{0:#0{1}b}".format(inputBuffer, 10))
+  print binStr[:2+localBitPosition]+'\033[7m'+binStr[localBitPosition+2]+'\033[27m'+binStr[localBitPosition+3:],
+  print "{0:#0{1}x}".format(inputBuffer,4),
+  print '\033[94m'+'Byte:', streamBytePosition, 'Bit:', (streamBytePosition*8)+localBitPosition
+
 # fill the comparison buffer with the syncWord size
 # print "Filling buffers..."
 comparisonBuffer = 0
@@ -75,20 +84,14 @@ for n in range(syncWord_len):
 
 streamBytePosition = 0
 while True: 
-  inputBuffer = readNextByte() # keeps one extra byte already in the buffer, for the next bitwise rotations
+  inputBuffer = (readNextByte() & 0b11111111 ) # keeps one extra byte already in the buffer, for the next bitwise rotations
 
   # Rotate and analyzes locally the input stream in steps of 8 bits 
   # because the TCP source (inputBuffer) is read byte (not bit per bit)
   for localBitPosition in range(8):
+    
     nextBit = int( "{0:#0{1}b}".format(inputBuffer, 2+syncWord_len*8)[localBitPosition+2], 2) # Removes the '0b' prefix from the formating representation
-
-    if args.verbose: print '\033[92m'+'comparisonBuffer:', "{0:#0{1}b}".format(comparisonBuffer, 2+syncWord_len*8), "{0:#0{1}x}".format(comparisonBuffer,2+syncWord_len*2),
-    if args.verbose: print '\033[93m'+'nextBit:', bin(nextBit),
-    if args.verbose: print '\033[95m'+'inputBuffer:', "{0:#0{1}b}".format(inputBuffer, 2+syncWord_len*8), "{0:#0{1}x}".format(inputBuffer,2+syncWord_len*2),
-    if args.verbose: print '\033[94m'+'Byte:', streamBytePosition, 'Bit:', (streamBytePosition*8)+localBitPosition
-
-    # print "Moving comparisonBuffer to the next bit:",n
-
+    if args.verbose: debugPrintBuffers()
     
     if comparisonBuffer == syncWord:
       if args.verbose: print "\nSYNC WORD",hex(syncWord),"FOUND!",'streamBytePosition:',streamBytePosition
@@ -101,6 +104,7 @@ while True:
   
     
     #BUG
+        # print "Moving comparisonBuffer to the next bit:",n
     comparisonBuffer = ( comparisonBuffer<<1 & (0xFF*syncWord_len) ) | nextBit
 
   streamBytePosition = streamBytePosition + 1
