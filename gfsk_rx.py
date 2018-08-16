@@ -4,7 +4,7 @@
 # GNU Radio Python Flow Graph
 # Title: GFSK Receiver
 # Author: Gabriel Mariano Marcelino
-# Generated: Mon Aug 13 15:04:15 2018
+# Generated: Thu Aug 16 09:16:19 2018
 ##################################################
 
 
@@ -63,6 +63,7 @@ class gfsk_rx(gr.top_block):
         	1, default_samp, default_bandwidth/2, default_bandwidth/2/6, firdes.WIN_HAMMING, 6.76))
         self.digital_clock_recovery_mm_xx_0 = digital.clock_recovery_mm_ff(default_samp/(default_baud*100), 0.001, 0, 0.25, 0.001)
         self.digital_binary_slicer_fb_0 = digital.binary_slicer_fb()
+        self.blocks_unpacked_to_packed_xx_0 = blocks.unpacked_to_packed_bb(1, gr.GR_MSB_FIRST)
         self.blocks_file_sink_1 = blocks.file_sink(gr.sizeof_char*1, default_bin_file_sink, False)
         self.blocks_file_sink_1.set_unbuffered(False)
         self.blks2_tcp_sink_0 = grc_blks2.tcp_sink(
@@ -77,8 +78,9 @@ class gfsk_rx(gr.top_block):
         # Connections
         ##################################################
         self.connect((self.analog_quadrature_demod_cf_0, 0), (self.low_pass_filter_1, 0))
-        self.connect((self.digital_binary_slicer_fb_0, 0), (self.blks2_tcp_sink_0, 0))
-        self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_file_sink_1, 0))
+        self.connect((self.blocks_unpacked_to_packed_xx_0, 0), (self.blks2_tcp_sink_0, 0))
+        self.connect((self.blocks_unpacked_to_packed_xx_0, 0), (self.blocks_file_sink_1, 0))
+        self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_unpacked_to_packed_xx_0, 0))
         self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.digital_binary_slicer_fb_0, 0))
         self.connect((self.low_pass_filter_0, 0), (self.analog_quadrature_demod_cf_0, 0))
         self.connect((self.low_pass_filter_1, 0), (self.digital_clock_recovery_mm_xx_0, 0))
