@@ -97,24 +97,23 @@ while True:
 
     inputBuffer_str = "{0:#0{1}b}".format(inputBuffer, 10)
     nextBit = int(inputBuffer_str[localBitPosition+2], 2)
-    
     if args.verbose: debugPrintBuffers()
 
     if comparisonBuffer == syncWord:
-      if args.verbose: print "\nSYNC WORD",hex(syncWord),"FOUND!",'streamBytePosition:',streamBytePosition
+      if args.verbose: print '\033[91m'+">>>", hex(syncWord), 'SYNC WORD FOUND processing byte:',streamBytePosition, '- Input bit count:', (streamBytePosition*8)+localBitPosition
       packet = readByteChunk(args.packet_length)
       print hex(syncWord),
       for i in range(len(packet)):
         print "{0:#0{1}x}".format( ord(packet[i]) ,4),
-      if args.display_time: print "\tReceived at:", datetime.datetime.now()
-    else:
-      # print "Moving comparisonBuffer to the next bit:",n    
-      comparisonBuffer = ( comparisonBuffer<<1 & (0xFF*syncWord_len) ) | nextBit
-
+      if args.display_time: print "\tReceived at:", datetime.datetime.now(),
+      print ""
+      streamBytePosition = streamBytePosition + syncWord_len + args.packet_length
+    
+    # Moving comparisonBuffer to the next bit:  
+    comparisonBuffer = ( (comparisonBuffer<<1) & int('1'*8*syncWord_len,2) ) | nextBit
     
   streamBytePosition = streamBytePosition + 1
   sys.stdout.flush()
-
 
 
 if args.verbose: print "syncWordStreamFilter.py end! Closing TCP connection..."
