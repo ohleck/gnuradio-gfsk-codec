@@ -78,21 +78,21 @@ comparisonBuffer = 0
 for n in range(syncWord_len):
   inputBuffer = (readNextByte() & 0b11111111 )
   comparisonBuffer = (comparisonBuffer<<8 ) | inputBuffer
-  print 'inputBuffer:\t', "  {0:#0{1}b}".format(inputBuffer, 2+syncWord_len*8), "{0:#0{1}x}".format(inputBuffer,2+syncWord_len*2) 
-  print 'comparisonBuffer:', "{0:#0{1}b}".format(comparisonBuffer, 2+syncWord_len*8), "{0:#0{1}x}".format(comparisonBuffer,2+syncWord_len*2) 
+  if args.verbose: print 'inputBuffer:\t', "  {0:#0{1}b}".format(inputBuffer, 2+syncWord_len*8), "{0:#0{1}x}".format(inputBuffer,2+syncWord_len*2) 
+  if args.verbose: print 'comparisonBuffer:', "{0:#0{1}b}".format(comparisonBuffer, 2+syncWord_len*8), "{0:#0{1}x}".format(comparisonBuffer,2+syncWord_len*2) 
 
 
 streamBytePosition = 0
 while True: 
-  inputBuffer = (readNextByte() & 0b11111111 ) # keeps one extra byte already in the buffer, for the next bitwise rotations
+  # Reads the TCP source byte per byte, but analyzes locally in bit steps, 
+  # because syncWord is not necessarely aligned in the incoming byte sequence
 
-  # Rotate and analyzes locally the input stream in steps of 8 bits 
-  # because the TCP source (inputBuffer) is read byte (not bit per bit)
+  # comparisonBuffer was already filled in the previous step and is ready for comparison,
+  # but still read one subsequent byte, for the following bitwise insertions in the comparison buffer
+  inputBuffer = (readNextByte() & 0b11111111 ) 
+
   for localBitPosition in range(8):
-    
-    nextBit = int( "{0:#0{1}b}".format(inputBuffer, 2+syncWord_len*8)[localBitPosition+2], 2) # Removes the '0b' prefix from the formating representation
-    if args.verbose: debugPrintBuffers()
-    
+
     if comparisonBuffer == syncWord:
       if args.verbose: print "\nSYNC WORD",hex(syncWord),"FOUND!",'streamBytePosition:',streamBytePosition
       packet = readByteChunk(args.packet_length)
@@ -100,17 +100,17 @@ while True:
       for i in range(len(packet)):
         print "{0:#0{1}x}".format( ord(packet[i]) ,4),
       if args.display_time: print "\tReceived at:", datetime.datetime.now()
-      sys.stdout.flush()
-  
-    
-    #BUG
-        # print "Moving comparisonBuffer to the next bit:",n
-    comparisonBuffer = ( comparisonBuffer<<1 & (0xFF*syncWord_len) ) | nextBit
+    else:
+      # print "Moving comparisonBuffer to the next bit:",n    
+      nextBit = int( "{0:#0{1}b}".format(inputBuffer, 2+syncWord_len*8)[localBitPosition+2], 2) # Removes the '0b' prefix from the formating representation
+      comparisonBuffer = ( comparisonBuffer<<1 & (0xFF*syncWord_len) ) | nextBit
 
+    if args.verbose: debugPrintBuffers()
   streamBytePosition = streamBytePosition + 1
-  
+  sys.stdout.flush()
 
 
-if args.verbose: print "syncWordFilter.py end! Closing TCP connection..."
+
+if args.verbose: print "syncWordStreamFilter.py end! Closing TCP connection..."
 client_socket.close()
 
