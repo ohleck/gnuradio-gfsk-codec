@@ -64,13 +64,14 @@ def readByteChunk(length):
   return readBuffer
 
 def debugPrintBuffers():
-  print '\033[92m'+'comparisonBuffer:', "{0:#0{1}b}".format(comparisonBuffer, 2+syncWord_len*8), "{0:#0{1}x}".format(comparisonBuffer,2+syncWord_len*2),
-  print '\033[93m'+'nextBit:', bin(nextBit),
-  print '\033[95m'+'inputBuffer:',
+  print '\033[94m'+'bit:', (streamBytePosition*8)+localBitPosition,'Byte:', streamBytePosition, " \t",
+  print '\033[92m'+'Analyzing:', "{0:#0{1}x}".format(comparisonBuffer,2+syncWord_len*2), "{0:#0{1}b}".format(comparisonBuffer, 2+syncWord_len*8),
+  print '\033[93m'+'<<', bin(nextBit)[2],'<<',
+  print '\033[95m',
   binStr = str("{0:#0{1}b}".format(inputBuffer, 10))
   print binStr[:2+localBitPosition]+'\033[7m'+binStr[localBitPosition+2]+'\033[27m'+binStr[localBitPosition+3:],
-  print "{0:#0{1}x}".format(inputBuffer,4),
-  print '\033[94m'+'Byte:', streamBytePosition, 'Bit:', (streamBytePosition*8)+localBitPosition
+  print "{0:#0{1}x}".format(inputBuffer,4)
+  
 
 # fill the comparison buffer with the syncWord size
 # print "Filling buffers..."
