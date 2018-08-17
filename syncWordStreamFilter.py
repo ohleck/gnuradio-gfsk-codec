@@ -23,11 +23,11 @@ args = parser.parse_args()
 # Check if sync word is in appropriated ascii hexadecimal representation
 if args.syncWord[:2] != '0x':
   print "-syncWord should be in the format hexadecimal format. Ex: '0x5B53575D'"
-  print 'Exiting...'
+  print "Exiting..."
   exit()
 if (len(args.syncWord)%2) != 0:
   print "-syncWord length should be even! Two ascii chars representing each byte. Ex: '0x5B53575D'"
-  print 'Exiting...'
+  print "Exiting..."
   exit()
 
 # Store the sync word as a decimal value
@@ -67,12 +67,13 @@ def readByteChunk(length):
 def debugPrintBuffers():
   print '\033[94m'+'bit:', (streamBytePosition*8)+localBitPosition,'Byte:', streamBytePosition, " \t",
   print '\033[92m'+'Analyzing:', "{0:#0{1}x}".format(comparisonBuffer,2+syncWord_len*2), "{0:#0{1}b}".format(comparisonBuffer, 2+syncWord_len*8)[2:],
-  print '\033[93m'+'<<', bin(nextBit)[2],'<<',
-  print '\033[95m',
+  print '\033[93m'+'<<', bin(nextBit)[2],'<<'+'\033[95m',
   binStr = str("{0:#0{1}b}".format(inputBuffer, 10))[2:]
   print binStr[:localBitPosition]+'\033[7m'+binStr[localBitPosition]+'\033[27m'+binStr[localBitPosition+1:],
-  print "{0:#0{1}x}".format(inputBuffer,4)
-  
+  print "{0:#0{1}x}".format(inputBuffer,4),
+  now = datetime.datetime.now()
+  print '\033[91m'+'Last match:', now.strftime("%H:%M:%S")
+
 
 # fill the comparison buffer with the syncWord size
 # print "Filling buffers..."
@@ -94,7 +95,6 @@ while True:
   # but still read one subsequent byte, for the following bitwise insertions in the comparison buffer
   inputBuffer = (readNextByte() & 0b11111111 ) 
   
-
   for localBitPosition in range(8):
 
     inputBuffer_str = "{0:#0{1}b}".format(inputBuffer, 10)
@@ -121,4 +121,3 @@ while True:
 
 if args.verbose: print "syncWordStreamFilter.py end! Closing TCP connection..."
 client_socket.close()
-
