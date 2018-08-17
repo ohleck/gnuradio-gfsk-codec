@@ -65,18 +65,21 @@ def readByteChunk(length):
   return readBuffer
 
 def debugPrintBuffers():
-  print '\033[94m'+'bit:', (streamBytePosition*8)+localBitPosition,'Byte:', streamBytePosition, " \t",
+  print '\033[94m'+'bit:', (streamBytePosition*8)+localBitPosition,'Byte:', streamBytePosition, 
   print '\033[92m'+'Analyzing:', "{0:#0{1}x}".format(comparisonBuffer,2+syncWord_len*2), "{0:#0{1}b}".format(comparisonBuffer, 2+syncWord_len*8)[2:],
-  print '\033[93m'+'<<', bin(nextBit)[2],'<<'+'\033[95m',
+  print '\033[93m'+'<', bin(nextBit)[2],'<'+'\033[95m',
   binStr = str("{0:#0{1}b}".format(inputBuffer, 10))[2:]
   print binStr[:localBitPosition]+'\033[7m'+binStr[localBitPosition]+'\033[27m'+binStr[localBitPosition+1:],
   print "{0:#0{1}x}".format(inputBuffer,4),
-  now = datetime.datetime.now()
-  print '\033[91m'+'Last match:', now.strftime("%H:%M:%S")
+  print '\033[91m'+'Matches:', matchesCount,
+  if now:
+    print 'Last:', now.strftime("%H:%M:%S"),
+  print ''
 
 
 # fill the comparison buffer with the syncWord size
-# print "Filling buffers..."
+matchesCount = 0
+now = False
 comparisonBuffer = 0
 for n in range(syncWord_len):
   inputBuffer = (readNextByte() & 0b11111111 )
@@ -102,13 +105,15 @@ while True:
     if args.verbose: debugPrintBuffers()
 
     if comparisonBuffer == syncWord:
+      matchesCount = matchesCount + 1
       if args.verbose: print '\033[91m'+">>>", hex(syncWord), 'SYNC WORD FOUND processing byte:',streamBytePosition, '- Input bit count:', (streamBytePosition*8)+localBitPosition
       packet = readByteChunk(args.packet_length)
       print hex(syncWord),
       print "{0:#0{1}x}".format( inputBuffer ,4), # merge with the next byte after syncWord (inputBuffer), pre-fetched from memory 
       for i in range(len(packet)):
         print "{0:#0{1}x}".format( ord(packet[i]) ,4),
-      if args.display_time: print "\tReceived at:", datetime.datetime.now(),
+      now = datetime.datetime.now()
+      if args.display_time: print "\tReceived at:", now,
       print ""
       streamBytePosition = streamBytePosition + syncWord_len + args.packet_length
 
