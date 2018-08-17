@@ -4,8 +4,9 @@ import socket, argparse, datetime, sys
 # Usage:
 # ./syncWordStreamFilter.py -ip localhost -port 7000 -syncWord 0x53 -packet_length 4 -display_time
 #
-# Optional: -verbose | -display_time
-#
+# Optional: -verbose -display_time
+# use '| more' to control the verbose output
+# 
 # Simulation environment: 
 # The command bellow creates and TCP server providing the binary file as content and restarting the operation after the client disconnects.
 # while true; do nc -l 127.0.0.1 7000 < samples/sampleBitstream_syncWord_0x5370.bin; done
@@ -65,11 +66,11 @@ def readByteChunk(length):
 
 def debugPrintBuffers():
   print '\033[94m'+'bit:', (streamBytePosition*8)+localBitPosition,'Byte:', streamBytePosition, " \t",
-  print '\033[92m'+'Analyzing:', "{0:#0{1}x}".format(comparisonBuffer,2+syncWord_len*2), "{0:#0{1}b}".format(comparisonBuffer, 2+syncWord_len*8),
+  print '\033[92m'+'Analyzing:', "{0:#0{1}x}".format(comparisonBuffer,2+syncWord_len*2), "{0:#0{1}b}".format(comparisonBuffer, 2+syncWord_len*8)[2:],
   print '\033[93m'+'<<', bin(nextBit)[2],'<<',
   print '\033[95m',
-  binStr = str("{0:#0{1}b}".format(inputBuffer, 10))
-  print binStr[:2+localBitPosition]+'\033[7m'+binStr[localBitPosition+2]+'\033[27m'+binStr[localBitPosition+3:],
+  binStr = str("{0:#0{1}b}".format(inputBuffer, 10))[2:]
+  print binStr[:localBitPosition]+'\033[7m'+binStr[localBitPosition]+'\033[27m'+binStr[localBitPosition+1:],
   print "{0:#0{1}x}".format(inputBuffer,4)
   
 
@@ -104,12 +105,13 @@ while True:
       if args.verbose: print '\033[91m'+">>>", hex(syncWord), 'SYNC WORD FOUND processing byte:',streamBytePosition, '- Input bit count:', (streamBytePosition*8)+localBitPosition
       packet = readByteChunk(args.packet_length)
       print hex(syncWord),
+      print "{0:#0{1}x}".format( inputBuffer ,4), # merge with the next byte after syncWord (inputBuffer), pre-fetched from memory 
       for i in range(len(packet)):
         print "{0:#0{1}x}".format( ord(packet[i]) ,4),
       if args.display_time: print "\tReceived at:", datetime.datetime.now(),
       print ""
       streamBytePosition = streamBytePosition + syncWord_len + args.packet_length
-    
+
     # Moving comparisonBuffer to the next bit:  
     comparisonBuffer = ( (comparisonBuffer<<1) & int('1'*8*syncWord_len,2) ) | nextBit
     
