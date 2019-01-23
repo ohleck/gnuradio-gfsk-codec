@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: GFSK Receiver
-# Generated: Wed Jan 16 18:56:43 2019
+# Generated: Wed Jan 23 10:56:50 2019
 ##################################################
 
 from distutils.version import StrictVersion
@@ -100,6 +100,20 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         ##################################################
         # Blocks
         ##################################################
+        self.controls = Qt.QTabWidget()
+        self.controls_widget_0 = Qt.QWidget()
+        self.controls_layout_0 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.controls_widget_0)
+        self.controls_grid_layout_0 = Qt.QGridLayout()
+        self.controls_layout_0.addLayout(self.controls_grid_layout_0)
+        self.controls.addTab(self.controls_widget_0, 'RF')
+        self.controls_widget_1 = Qt.QWidget()
+        self.controls_layout_1 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.controls_widget_1)
+        self.controls_grid_layout_1 = Qt.QGridLayout()
+        self.controls_layout_1.addLayout(self.controls_grid_layout_1)
+        self.controls.addTab(self.controls_widget_1, 'Receiver DSP')
+        self.top_grid_layout.addWidget(self.controls, 0, 0, 1, 4)
+        [self.top_grid_layout.setRowStretch(r,1) for r in range(0,1)]
+        [self.top_grid_layout.setColumnStretch(c,1) for c in range(0,4)]
         self.signals = Qt.QTabWidget()
         self.signals_widget_0 = Qt.QWidget()
         self.signals_layout_0 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.signals_widget_0)
@@ -128,20 +142,6 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.signals.addTab(self.signals_widget_4, 'Clock Recovery')
         self.top_grid_layout.addWidget(self.signals, 1, 0, 2, 4)
         [self.top_grid_layout.setRowStretch(r,1) for r in range(1,3)]
-        [self.top_grid_layout.setColumnStretch(c,1) for c in range(0,4)]
-        self.controls = Qt.QTabWidget()
-        self.controls_widget_0 = Qt.QWidget()
-        self.controls_layout_0 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.controls_widget_0)
-        self.controls_grid_layout_0 = Qt.QGridLayout()
-        self.controls_layout_0.addLayout(self.controls_grid_layout_0)
-        self.controls.addTab(self.controls_widget_0, 'RF')
-        self.controls_widget_1 = Qt.QWidget()
-        self.controls_layout_1 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.controls_widget_1)
-        self.controls_grid_layout_1 = Qt.QGridLayout()
-        self.controls_layout_1.addLayout(self.controls_grid_layout_1)
-        self.controls.addTab(self.controls_widget_1, 'Receiver DSP')
-        self.top_grid_layout.addWidget(self.controls, 0, 0, 1, 4)
-        [self.top_grid_layout.setRowStretch(r,1) for r in range(0,1)]
         [self.top_grid_layout.setColumnStretch(c,1) for c in range(0,4)]
         self._rx_gain_range = Range(0, 100, 1, 16, 200)
         self._rx_gain_win = RangeWidget(self._rx_gain_range, self.set_rx_gain, 'RX Power Gain', "counter_slider", float)
@@ -736,7 +736,7 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.signals_grid_layout_0.addWidget(self._qtgui_freq_sink_x_0_0_1_win, 0, 3, 1, 3)
         [self.signals_grid_layout_0.setRowStretch(r,1) for r in range(0,1)]
         [self.signals_grid_layout_0.setColumnStretch(c,1) for c in range(3,6)]
-        self.iio_fmcomms2_source_0 = iio.fmcomms2_source_f32c('ip:pluto.local', default_freq, default_samp, 1 - 1, 20000000, True, False, 0x8000, True, True, True, "fast_attack", default_gain, "manual", 64.0, "A_BALANCED", '', True)
+        self.iio_fmcomms2_source_0 = iio.fmcomms2_source_f32c('ip:pluto.local', default_freq, default_samp, 1 - 1, 20000000, True, False, 0x8000, True, True, True, "fast_attack", rx_gain, "fast_attack", 64.0, "A_BALANCED", '', True)
         self.fir_filter_xxx_0_0 = filter.fir_filter_fff(dec_rx, (low_pass_taps_2))
         self.fir_filter_xxx_0_0.declare_sample_delay(0)
         self.fir_filter_xxx_0 = filter.fir_filter_ccc(1, (low_pass_taps))
@@ -803,14 +803,13 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
 
     def set_default_freq(self, default_freq):
         self.default_freq = default_freq
-        self.iio_fmcomms2_source_0.set_params(self.default_freq, self.default_samp, 20000000, True, True, True, "fast_attack", self.default_gain, "manual", 64.0, "A_BALANCED", '', True)
+        self.iio_fmcomms2_source_0.set_params(self.default_freq, self.default_samp, 20000000, True, True, True, "fast_attack", self.rx_gain, "fast_attack", 64.0, "A_BALANCED", '', True)
 
     def get_default_gain(self):
         return self.default_gain
 
     def set_default_gain(self, default_gain):
         self.default_gain = default_gain
-        self.iio_fmcomms2_source_0.set_params(self.default_freq, self.default_samp, 20000000, True, True, True, "fast_attack", self.default_gain, "manual", 64.0, "A_BALANCED", '', True)
 
     def get_default_ip(self):
         return self.default_ip
@@ -843,7 +842,7 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.qtgui_freq_sink_x_0_0_1_0.set_frequency_range(0, self.default_samp)
         self.qtgui_freq_sink_x_0_0_1.set_frequency_range(0, self.default_samp)
         self.set_interp_tx(self.default_samp/self.default_baud)
-        self.iio_fmcomms2_source_0.set_params(self.default_freq, self.default_samp, 20000000, True, True, True, "fast_attack", self.default_gain, "manual", 64.0, "A_BALANCED", '', True)
+        self.iio_fmcomms2_source_0.set_params(self.default_freq, self.default_samp, 20000000, True, True, True, "fast_attack", self.rx_gain, "fast_attack", 64.0, "A_BALANCED", '', True)
         self.analog_quadrature_demod_cf_0.set_gain((self.default_samp)/(2*math.pi*self.f_dev/8.0)/10)
 
     def get_sdr_dev(self):
@@ -889,6 +888,7 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
 
     def set_rx_gain(self, rx_gain):
         self.rx_gain = rx_gain
+        self.iio_fmcomms2_source_0.set_params(self.default_freq, self.default_samp, 20000000, True, True, True, "fast_attack", self.rx_gain, "fast_attack", 64.0, "A_BALANCED", '', True)
 
     def get_low_pass_taps_2(self):
         return self.low_pass_taps_2

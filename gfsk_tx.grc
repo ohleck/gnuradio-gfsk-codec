@@ -257,7 +257,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>/home/rafael/Documents/code/gnuradio/python/data_raw.bin</value>
+      <value>/tmp/tx_data.bin</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -293,6 +293,53 @@
     </param>
   </block>
   <block>
+    <key>blocks_message_strobe</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(0, 372)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_message_strobe_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>msg</key>
+      <value>pmt.pmt_to_python.numpy_to_uvector(numpy.array([ord(c) for c in "ZZZZZZZZsometextgoeshereUUUUUUUU"], numpy.uint8))</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>period</key>
+      <value>500</value>
+    </param>
+  </block>
+  <block>
     <key>blocks_multiply_const_vxx</key>
     <param>
       <key>alias</key>
@@ -316,7 +363,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(952, 228)</value>
+      <value>(944, 228)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -359,11 +406,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(592, 228)</value>
+      <value>(616, 276)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -387,6 +434,61 @@
     </param>
   </block>
   <block>
+    <key>blocks_random_pdu</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>mask</key>
+      <value>0xFF</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(48, 468)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_random_pdu_0</value>
+    </param>
+    <param>
+      <key>length_modulo</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>maxsize</key>
+      <value>2000</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minsize</key>
+      <value>50</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>blocks_unpack_k_bits_bb</key>
     <param>
       <key>alias</key>
@@ -402,7 +504,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -578,7 +680,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(400, 228)</value>
+      <value>(416, 276)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -625,7 +727,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(736, 220)</value>
+      <value>(744, 268)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -654,6 +756,49 @@
     <param>
       <key>verbose</key>
       <value>False</value>
+    </param>
+  </block>
+  <block>
+    <key>digital_hdlc_framer_pb</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>frame_tag_name</key>
+      <value>len_tag</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(280, 492)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>digital_hdlc_framer_pb_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -787,6 +932,37 @@
     </param>
   </block>
   <block>
+    <key>import</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(56, 596)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>import_0</value>
+    </param>
+    <param>
+      <key>import</key>
+      <value>import numpy</value>
+    </param>
+  </block>
+  <block>
     <key>note</key>
     <param>
       <key>alias</key>
@@ -802,7 +978,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(200, 340)</value>
+      <value>(200, 172)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -833,7 +1009,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(208, 284)</value>
+      <value>(208, 124)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1830,6 +2006,12 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>blocks_message_strobe_0</source_block_id>
+    <sink_block_id>blocks_random_pdu_0</sink_block_id>
+    <source_key>strobe</source_key>
+    <sink_key>generate</sink_key>
+  </connection>
+  <connection>
     <source_block_id>blocks_multiply_const_vxx_0</source_block_id>
     <sink_block_id>iio_fmcomms2_sink_0</sink_block_id>
     <source_key>0</source_key>
@@ -1840,6 +2022,12 @@
     <sink_block_id>digital_gmsk_mod_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_random_pdu_0</source_block_id>
+    <sink_block_id>digital_hdlc_framer_pb_0</sink_block_id>
+    <source_key>pdus</source_key>
+    <sink_key>in</sink_key>
   </connection>
   <connection>
     <source_block_id>blocks_unpack_k_bits_bb_0_1</source_block_id>

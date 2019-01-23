@@ -182,7 +182,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(496, 372)</value>
+      <value>(552, 292)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -229,7 +229,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(232, 716)</value>
+      <value>(248, 716)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -393,7 +393,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(248, 652)</value>
+      <value>(288, 652)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1146,7 +1146,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(504, 516)</value>
+      <value>(392, 532)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1201,7 +1201,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(464, 644)</value>
+      <value>(480, 644)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1272,7 +1272,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(0, 404)</value>
+      <value>(0, 292)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1284,7 +1284,7 @@
     </param>
     <param>
       <key>gain2</key>
-      <value>"manual"</value>
+      <value>"fast_attack"</value>
     </param>
     <param>
       <key>id</key>
@@ -1300,7 +1300,7 @@
     </param>
     <param>
       <key>manual_gain1</key>
-      <value>default_gain</value>
+      <value>rx_gain</value>
     </param>
     <param>
       <key>manual_gain2</key>
@@ -1391,7 +1391,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(312, 364)</value>
+      <value>(392, 356)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -1690,7 +1690,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(888, 412)</value>
+      <value>(1016, 428)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -1989,7 +1989,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(456, 812)</value>
+      <value>(480, 812)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -2575,7 +2575,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(312, 268)</value>
+      <value>(392, 260)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -2942,7 +2942,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(888, 316)</value>
+      <value>(1016, 332)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -3309,7 +3309,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(456, 732)</value>
+      <value>(480, 732)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -4410,7 +4410,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(312, 460)</value>
+      <value>(392, 452)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -4633,7 +4633,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(888, 508)</value>
+      <value>(1016, 524)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -4856,7 +4856,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(456, 908)</value>
+      <value>(480, 908)</value>
     </param>
     <param>
       <key>gui_hint</key>

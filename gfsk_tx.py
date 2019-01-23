@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: GFSK TX
-# Generated: Wed Jan 16 18:56:56 2019
+# Generated: Wed Jan 23 10:56:38 2019
 ##################################################
 
 from distutils.version import StrictVersion
@@ -231,7 +231,7 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
         self.blocks_unpack_k_bits_bb_0_1 = blocks.unpack_k_bits_bb(8)
         self.blocks_pack_k_bits_bb_0 = blocks.pack_k_bits_bb(8)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vcc((1, ))
-        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_char*1, '/home/rafael/Documents/code/gnuradio/python/data_raw.bin', True)
+        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_char*1, '/tmp/tx_data.bin', True)
 
         ##################################################
         # Connections
