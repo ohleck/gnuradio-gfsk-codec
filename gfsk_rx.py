@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: GFSK Receiver
-# Generated: Wed Jan 23 18:34:43 2019
+# Generated: Wed Jan 23 18:52:52 2019
 ##################################################
 
 from distutils.version import StrictVersion
@@ -21,6 +21,7 @@ if __name__ == '__main__':
 from PyQt5 import Qt
 from PyQt5 import Qt, QtCore
 from gnuradio import analog
+from gnuradio import blocks
 from gnuradio import digital
 from gnuradio import eng_notation
 from gnuradio import filter
@@ -745,6 +746,7 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.digital_diff_decoder_bb_0 = digital.diff_decoder_bb(2)
         self.digital_clock_recovery_mm_xx_0 = digital.clock_recovery_mm_ff(sps_rx, 0.25*0.175*0.175, 0.5, 0.175, 0.005)
         self.digital_binary_slicer_fb_0 = digital.binary_slicer_fb()
+        self.blocks_pack_k_bits_bb_0 = blocks.pack_k_bits_bb(8)
         self.blks2_tcp_sink_0 = grc_blks2.tcp_sink(
         	itemsize=gr.sizeof_char*1,
         	addr=default_ip,
@@ -760,10 +762,11 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.connect((self.analog_quadrature_demod_cf_0, 0), (self.qtgui_freq_sink_x_0_0_1_0_0, 0))
         self.connect((self.analog_quadrature_demod_cf_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0, 0))
         self.connect((self.analog_quadrature_demod_cf_0, 0), (self.qtgui_waterfall_sink_x_0_0_0_0, 0))
+        self.connect((self.blocks_pack_k_bits_bb_0, 0), (self.blks2_tcp_sink_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.digital_diff_decoder_bb_0, 0))
         self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.digital_binary_slicer_fb_0, 0))
         self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0_0, 0))
-        self.connect((self.digital_diff_decoder_bb_0, 0), (self.blks2_tcp_sink_0, 0))
+        self.connect((self.digital_diff_decoder_bb_0, 0), (self.blocks_pack_k_bits_bb_0, 0))
         self.connect((self.fir_filter_xxx_0_0, 0), (self.digital_clock_recovery_mm_xx_0, 0))
         self.connect((self.fir_filter_xxx_0_0, 0), (self.qtgui_freq_sink_x_0_0_1_0_0_0, 0))
         self.connect((self.fir_filter_xxx_0_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0_1, 0))
