@@ -1,5 +1,6 @@
 #!/usr/bin/python2.7
 import socket, argparse, datetime, sys
+from utils.tcp_utils import TCPClient
 
 # Usage:
 # ./syncWordStreamFilter.py -ip localhost -port 7000 -syncWord 0x53 -packet_length 4 -display_time
@@ -39,15 +40,18 @@ if args.verbose: print 'Seeking input stream for sync word:', hex(syncWord) ,'(s
 
 
 if args.verbose: print 'Connecting to', args.ip, args.port
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #Creates the client socket
-client_socket.connect((args.ip, args.port)) #Connects the client to the server
 
+client = TCPClient(args.ip, args.port)
+# Connect to TCP server
+connected = client.connect()
+if connected:
+    print('Connection Successful')
 
 def readNextByte():
-  inputByte_str = client_socket.recv(1)
+  inputByte_str = client.receive_data(1)
   if not inputByte_str:
     if args.verbose: print 'Connection Lost!'
-    client_socket.close()
+    client.close()
     exit()
   else:
     return ord(inputByte_str)
@@ -56,10 +60,10 @@ def readByteChunk(length):
   readBuffer = []
   # loop through N single reads instead of socket buffer to avoid network dellays / buffer sizes mismatches issues
   for n in range(length):
-    inputByte_str = client_socket.recv(1) 
+    inputByte_str = client.receive_data(1) 
     if not inputByte_str:
       if args.verbose: print 'Connection Lost!'
-      client_socket.close()
+      client.close()
       exit()
     readBuffer.append(inputByte_str)  
   return readBuffer
@@ -125,4 +129,4 @@ while True:
 
 
 if args.verbose: print "syncWordStreamFilter.py end! Closing TCP connection..."
-client_socket.close()
+client.close()
