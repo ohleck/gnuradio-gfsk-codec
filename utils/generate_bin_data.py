@@ -6,8 +6,9 @@ from comm_utils import assemble_hdlc_packet
 
 PREAMBLE = b'\xAA'*16
 FLAG = b'\x7E'
+FILE_PATH = '/tmp/tx_data.bin' # Path to write the binary data
 
-f = open('/tmp/tx_data.bin', 'wb')
+f = open(FILE_PATH, 'wb')
 
 for i in range(100):
     p1 = [x for x in range(31)]
