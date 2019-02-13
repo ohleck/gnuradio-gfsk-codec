@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: GFSK Receiver
-# Generated: Wed Jan 23 18:52:52 2019
+# Generated: Wed Feb 13 15:07:40 2019
 ##################################################
 
 from distutils.version import StrictVersion
@@ -31,7 +31,6 @@ from gnuradio import qtgui
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
 from gnuradio.qtgui import Range, RangeWidget
-from grc_gnuradio import blks2 as grc_blks2
 from optparse import OptionParser
 import math
 import sip
@@ -41,7 +40,7 @@ from gnuradio import qtgui
 
 class gfsk_rx(gr.top_block, Qt.QWidget):
 
-    def __init__(self, default_bandwidth=20e3, default_baud=9600, default_bin_file_sink="/tmp/rx_data.bin", default_freq=437500000, default_gain=16, default_ip='127.0.0.1', default_port=5000, default_samp=1920000, sdr_dev="rtl=0"):
+    def __init__(self, default_bandwidth=20e3, default_baud=9600, default_bin_file_sink="/tmp/rx_data.bin", default_freq=433000000, default_gain=16, default_ip='127.0.0.1', default_port=5000, default_samp=1920000, sdr_dev="rtl=0"):
         gr.top_block.__init__(self, "GFSK Receiver")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("GFSK Receiver")
@@ -90,15 +89,22 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.dec_rx = dec_rx = default_samp/samp_rate_dec
         self.t_points = t_points = 2000
         self.sps_rx = sps_rx = interp_tx/dec_rx
-        self.rx_gain = rx_gain = 16
+        self.rx_gain = rx_gain = 64
+
+        self.rrc_taps = rrc_taps = firdes.root_raised_cosine(20, default_samp, interp_tx, 0.5, 88)
+
 
         self.low_pass_taps_2 = low_pass_taps_2 = firdes.low_pass(1.0, samp_rate_dec, 6000, 1200, firdes.WIN_HAMMING, 6.76)
 
 
-        self.low_pass_taps = low_pass_taps = firdes.low_pass(1.0, default_samp, 150000, 20000, firdes.WIN_HAMMING, 6.76)
+        self.low_pass_taps = low_pass_taps = firdes.low_pass(1.0, default_samp, 100000, 20000, firdes.WIN_HAMMING, 6.76)
 
-        self.freq_xlating = freq_xlating = 200000
+        self.freq_xlating = freq_xlating = 100000
         self.f_dev = f_dev = default_baud/4
+        self.cc_omega_lim = cc_omega_lim = 0.002
+        self.cc_mu_gain = cc_mu_gain = 0.175
+        self.cc_mu = cc_mu = 0.5
+        self.cc_gain = cc_gain = 0.25*0.175*0.175
 
         ##################################################
         # Blocks
@@ -143,14 +149,39 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.signals_grid_layout_4 = Qt.QGridLayout()
         self.signals_layout_4.addLayout(self.signals_grid_layout_4)
         self.signals.addTab(self.signals_widget_4, 'Clock Recovery')
+        self.signals_widget_5 = Qt.QWidget()
+        self.signals_layout_5 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.signals_widget_5)
+        self.signals_grid_layout_5 = Qt.QGridLayout()
+        self.signals_layout_5.addLayout(self.signals_grid_layout_5)
+        self.signals.addTab(self.signals_widget_5, 'Output Bitstream')
         self.top_grid_layout.addWidget(self.signals, 1, 0, 2, 4)
         [self.top_grid_layout.setRowStretch(r,1) for r in range(1,3)]
         [self.top_grid_layout.setColumnStretch(c,1) for c in range(0,4)]
-        self._rx_gain_range = Range(0, 100, 1, 16, 200)
+        self._rx_gain_range = Range(0, 100, 1, 64, 200)
         self._rx_gain_win = RangeWidget(self._rx_gain_range, self.set_rx_gain, 'RX Power Gain', "counter_slider", float)
         self.controls_grid_layout_0.addWidget(self._rx_gain_win, 0, 0, 1, 1)
         [self.controls_grid_layout_0.setRowStretch(r,1) for r in range(0,1)]
         [self.controls_grid_layout_0.setColumnStretch(c,1) for c in range(0,1)]
+        self._cc_omega_lim_range = Range(0.0005, 0.02, 0.0001, 0.002, 200)
+        self._cc_omega_lim_win = RangeWidget(self._cc_omega_lim_range, self.set_cc_omega_lim, 'CC Omega Lim', "counter_slider", float)
+        self.controls_grid_layout_1.addWidget(self._cc_omega_lim_win, 0, 3, 1, 1)
+        [self.controls_grid_layout_1.setRowStretch(r,1) for r in range(0,1)]
+        [self.controls_grid_layout_1.setColumnStretch(c,1) for c in range(3,4)]
+        self._cc_mu_gain_range = Range(0.01, 0.5, 0.05, 0.175, 200)
+        self._cc_mu_gain_win = RangeWidget(self._cc_mu_gain_range, self.set_cc_mu_gain, 'CC MU gain', "counter_slider", float)
+        self.controls_grid_layout_1.addWidget(self._cc_mu_gain_win, 0, 2, 1, 1)
+        [self.controls_grid_layout_1.setRowStretch(r,1) for r in range(0,1)]
+        [self.controls_grid_layout_1.setColumnStretch(c,1) for c in range(2,3)]
+        self._cc_mu_range = Range(0.1, 2, 0.1, 0.5, 200)
+        self._cc_mu_win = RangeWidget(self._cc_mu_range, self.set_cc_mu, 'CC MU', "counter_slider", float)
+        self.controls_grid_layout_1.addWidget(self._cc_mu_win, 0, 1, 1, 1)
+        [self.controls_grid_layout_1.setRowStretch(r,1) for r in range(0,1)]
+        [self.controls_grid_layout_1.setColumnStretch(c,1) for c in range(1,2)]
+        self._cc_gain_range = Range(1e-3, 50e-3, 1e-3, 0.25*0.175*0.175, 200)
+        self._cc_gain_win = RangeWidget(self._cc_gain_range, self.set_cc_gain, 'CC Omega Gain', "counter_slider", float)
+        self.controls_grid_layout_1.addWidget(self._cc_gain_win, 0, 0, 1, 1)
+        [self.controls_grid_layout_1.setRowStretch(r,1) for r in range(0,1)]
+        [self.controls_grid_layout_1.setColumnStretch(c,1) for c in range(0,1)]
         self.qtgui_waterfall_sink_x_0_0_0_0_0 = qtgui.waterfall_sink_f(
         	1024, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -266,14 +297,14 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         [self.signals_grid_layout_1.setRowStretch(r,1) for r in range(2,3)]
         [self.signals_grid_layout_1.setColumnStretch(c,1) for c in range(0,6)]
         self.qtgui_waterfall_sink_x_0_0 = qtgui.waterfall_sink_c(
-        	1024, #size
+        	2048, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
         	0, #fc
         	default_samp, #bw
         	"", #name
                 1 #number of inputs
         )
-        self.qtgui_waterfall_sink_x_0_0.set_update_time(0.10)
+        self.qtgui_waterfall_sink_x_0_0.set_update_time(0.0000010)
         self.qtgui_waterfall_sink_x_0_0.enable_grid(False)
         self.qtgui_waterfall_sink_x_0_0.enable_axis_labels(True)
 
@@ -353,13 +384,63 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.signals_grid_layout_3.addWidget(self._qtgui_time_sink_x_0_0_0_0_0_1_win, 0, 0, 1, 3)
         [self.signals_grid_layout_3.setRowStretch(r,1) for r in range(0,1)]
         [self.signals_grid_layout_3.setColumnStretch(c,1) for c in range(0,3)]
-        self.qtgui_time_sink_x_0_0_0_0_0_0 = qtgui.time_sink_f(
+        self.qtgui_time_sink_x_0_0_0_0_0_0_0 = qtgui.time_sink_f(
         	t_points/10, #size
-        	samp_rate_dec, #samp_rate
+        	samp_rate_dec/8, #samp_rate
         	'Time RX In', #name
         	1 #number of inputs
         )
-        self.qtgui_time_sink_x_0_0_0_0_0_0.set_update_time(0.10)
+        self.qtgui_time_sink_x_0_0_0_0_0_0_0.set_update_time(0.10)
+        self.qtgui_time_sink_x_0_0_0_0_0_0_0.set_y_axis(-2, 2)
+
+        self.qtgui_time_sink_x_0_0_0_0_0_0_0.set_y_label('Amplitude', "")
+
+        self.qtgui_time_sink_x_0_0_0_0_0_0_0.enable_tags(-1, True)
+        self.qtgui_time_sink_x_0_0_0_0_0_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
+        self.qtgui_time_sink_x_0_0_0_0_0_0_0.enable_autoscale(False)
+        self.qtgui_time_sink_x_0_0_0_0_0_0_0.enable_grid(False)
+        self.qtgui_time_sink_x_0_0_0_0_0_0_0.enable_axis_labels(True)
+        self.qtgui_time_sink_x_0_0_0_0_0_0_0.enable_control_panel(False)
+        self.qtgui_time_sink_x_0_0_0_0_0_0_0.enable_stem_plot(False)
+
+        if not True:
+          self.qtgui_time_sink_x_0_0_0_0_0_0_0.disable_legend()
+
+        labels = ['', '', '', '', '',
+                  '', '', '', '', '']
+        widths = [1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1]
+        colors = ["blue", "red", "green", "black", "cyan",
+                  "magenta", "yellow", "dark red", "dark green", "blue"]
+        styles = [1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1]
+        markers = [-1, -1, -1, -1, -1,
+                   -1, -1, -1, -1, -1]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+                  1.0, 1.0, 1.0, 1.0, 1.0]
+
+        for i in xrange(1):
+            if len(labels[i]) == 0:
+                self.qtgui_time_sink_x_0_0_0_0_0_0_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_time_sink_x_0_0_0_0_0_0_0.set_line_label(i, labels[i])
+            self.qtgui_time_sink_x_0_0_0_0_0_0_0.set_line_width(i, widths[i])
+            self.qtgui_time_sink_x_0_0_0_0_0_0_0.set_line_color(i, colors[i])
+            self.qtgui_time_sink_x_0_0_0_0_0_0_0.set_line_style(i, styles[i])
+            self.qtgui_time_sink_x_0_0_0_0_0_0_0.set_line_marker(i, markers[i])
+            self.qtgui_time_sink_x_0_0_0_0_0_0_0.set_line_alpha(i, alphas[i])
+
+        self._qtgui_time_sink_x_0_0_0_0_0_0_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0_0_0_0_0_0_0.pyqwidget(), Qt.QWidget)
+        self.signals_grid_layout_5.addWidget(self._qtgui_time_sink_x_0_0_0_0_0_0_0_win, 0, 0, 2, 6)
+        [self.signals_grid_layout_5.setRowStretch(r,1) for r in range(0,2)]
+        [self.signals_grid_layout_5.setColumnStretch(c,1) for c in range(0,6)]
+        self.qtgui_time_sink_x_0_0_0_0_0_0 = qtgui.time_sink_f(
+        	t_points, #size
+        	samp_rate_dec/8, #samp_rate
+        	'Time RX In', #name
+        	1 #number of inputs
+        )
+        self.qtgui_time_sink_x_0_0_0_0_0_0.set_update_time(0.001)
         self.qtgui_time_sink_x_0_0_0_0_0_0.set_y_axis(-2, 2)
 
         self.qtgui_time_sink_x_0_0_0_0_0_0.set_y_label('Amplitude', "")
@@ -507,7 +588,7 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         [self.signals_grid_layout_1.setRowStretch(r,1) for r in range(0,1)]
         [self.signals_grid_layout_1.setColumnStretch(c,1) for c in range(0,3)]
         self.qtgui_time_sink_x_0_0_0 = qtgui.time_sink_c(
-        	t_points, #size
+        	t_points+1000, #size
         	default_samp, #samp_rate
         	'Time RX In', #name
         	1 #number of inputs
@@ -695,14 +776,14 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         [self.signals_grid_layout_1.setRowStretch(r,1) for r in range(0,1)]
         [self.signals_grid_layout_1.setColumnStretch(c,1) for c in range(3,6)]
         self.qtgui_freq_sink_x_0_0_1 = qtgui.freq_sink_c(
-        	1024, #size
+        	2048, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
         	0, #fc
         	default_samp, #bw
         	'FFT RX in', #name
         	1 #number of inputs
         )
-        self.qtgui_freq_sink_x_0_0_1.set_update_time(0.10)
+        self.qtgui_freq_sink_x_0_0_1.set_update_time(0.0000010)
         self.qtgui_freq_sink_x_0_0_1.set_y_axis(-140, 10)
         self.qtgui_freq_sink_x_0_0_1.set_y_label('Relative Gain', 'dB')
         self.qtgui_freq_sink_x_0_0_1.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
@@ -740,20 +821,15 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         [self.signals_grid_layout_0.setRowStretch(r,1) for r in range(0,1)]
         [self.signals_grid_layout_0.setColumnStretch(c,1) for c in range(3,6)]
         self.iio_fmcomms2_source_0 = iio.fmcomms2_source_f32c('ip:pluto.local', default_freq-freq_xlating, default_samp, 1 - 1, 20000000, True, False, 0x8000, True, True, True, "fast_attack", rx_gain, "fast_attack", 64.0, "A_BALANCED", '', True)
-        self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_ccc(dec_rx, (low_pass_taps), freq_xlating, default_samp)
+        self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_ccc(dec_rx, (rrc_taps), freq_xlating, default_samp)
         self.fir_filter_xxx_0_0 = filter.fir_filter_fff(1, (low_pass_taps_2))
         self.fir_filter_xxx_0_0.declare_sample_delay(0)
-        self.digital_diff_decoder_bb_0 = digital.diff_decoder_bb(2)
-        self.digital_clock_recovery_mm_xx_0 = digital.clock_recovery_mm_ff(sps_rx, 0.25*0.175*0.175, 0.5, 0.175, 0.005)
+        self.digital_clock_recovery_mm_xx_0 = digital.clock_recovery_mm_ff(sps_rx, cc_gain, cc_mu, cc_mu_gain, cc_omega_lim)
         self.digital_binary_slicer_fb_0 = digital.binary_slicer_fb()
-        self.blocks_pack_k_bits_bb_0 = blocks.pack_k_bits_bb(8)
-        self.blks2_tcp_sink_0 = grc_blks2.tcp_sink(
-        	itemsize=gr.sizeof_char*1,
-        	addr=default_ip,
-        	port=default_port,
-        	server=True,
-        )
-        self.analog_quadrature_demod_cf_0 = analog.quadrature_demod_cf((samp_rate_dec)/(2*math.pi*f_dev/8.0)/10)
+        self.blocks_file_sink_1 = blocks.file_sink(gr.sizeof_char*1, default_bin_file_sink, False)
+        self.blocks_file_sink_1.set_unbuffered(False)
+        self.blocks_char_to_float_0 = blocks.char_to_float(1, 1)
+        self.analog_quadrature_demod_cf_0 = analog.quadrature_demod_cf((samp_rate_dec)/(2*math.pi*f_dev/8.0)/7)
 
         ##################################################
         # Connections
@@ -762,11 +838,11 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.connect((self.analog_quadrature_demod_cf_0, 0), (self.qtgui_freq_sink_x_0_0_1_0_0, 0))
         self.connect((self.analog_quadrature_demod_cf_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0, 0))
         self.connect((self.analog_quadrature_demod_cf_0, 0), (self.qtgui_waterfall_sink_x_0_0_0_0, 0))
-        self.connect((self.blocks_pack_k_bits_bb_0, 0), (self.blks2_tcp_sink_0, 0))
-        self.connect((self.digital_binary_slicer_fb_0, 0), (self.digital_diff_decoder_bb_0, 0))
+        self.connect((self.blocks_char_to_float_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0_0_0, 0))
+        self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_char_to_float_0, 0))
+        self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_file_sink_1, 0))
         self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.digital_binary_slicer_fb_0, 0))
         self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0_0, 0))
-        self.connect((self.digital_diff_decoder_bb_0, 0), (self.blocks_pack_k_bits_bb_0, 0))
         self.connect((self.fir_filter_xxx_0_0, 0), (self.digital_clock_recovery_mm_xx_0, 0))
         self.connect((self.fir_filter_xxx_0_0, 0), (self.qtgui_freq_sink_x_0_0_1_0_0_0, 0))
         self.connect((self.fir_filter_xxx_0_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0_1, 0))
@@ -805,6 +881,7 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
 
     def set_default_bin_file_sink(self, default_bin_file_sink):
         self.default_bin_file_sink = default_bin_file_sink
+        self.blocks_file_sink_1.open(self.default_bin_file_sink)
 
     def get_default_freq(self):
         return self.default_freq
@@ -859,13 +936,14 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.qtgui_waterfall_sink_x_0_0_0_0.set_frequency_range(0, self.samp_rate_dec)
         self.qtgui_waterfall_sink_x_0_0_0.set_frequency_range(0, self.samp_rate_dec)
         self.qtgui_time_sink_x_0_0_0_0_0_1.set_samp_rate(self.samp_rate_dec)
-        self.qtgui_time_sink_x_0_0_0_0_0_0.set_samp_rate(self.samp_rate_dec)
+        self.qtgui_time_sink_x_0_0_0_0_0_0_0.set_samp_rate(self.samp_rate_dec/8)
+        self.qtgui_time_sink_x_0_0_0_0_0_0.set_samp_rate(self.samp_rate_dec/8)
         self.qtgui_time_sink_x_0_0_0_0_0.set_samp_rate(self.samp_rate_dec)
         self.qtgui_time_sink_x_0_0_0_0.set_samp_rate(self.samp_rate_dec)
         self.qtgui_freq_sink_x_0_0_1_0_0_0.set_frequency_range(0, self.samp_rate_dec)
         self.qtgui_freq_sink_x_0_0_1_0_0.set_frequency_range(0, self.samp_rate_dec)
         self.qtgui_freq_sink_x_0_0_1_0.set_frequency_range(0, self.samp_rate_dec)
-        self.analog_quadrature_demod_cf_0.set_gain((self.samp_rate_dec)/(2*math.pi*self.f_dev/8.0)/10)
+        self.analog_quadrature_demod_cf_0.set_gain((self.samp_rate_dec)/(2*math.pi*self.f_dev/8.0)/7)
 
     def get_interp_tx(self):
         return self.interp_tx
@@ -901,6 +979,13 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.rx_gain = rx_gain
         self.iio_fmcomms2_source_0.set_params(self.default_freq-self.freq_xlating, self.default_samp, 20000000, True, True, True, "fast_attack", self.rx_gain, "fast_attack", 64.0, "A_BALANCED", '', True)
 
+    def get_rrc_taps(self):
+        return self.rrc_taps
+
+    def set_rrc_taps(self, rrc_taps):
+        self.rrc_taps = rrc_taps
+        self.freq_xlating_fir_filter_xxx_0.set_taps((self.rrc_taps))
+
     def get_low_pass_taps_2(self):
         return self.low_pass_taps_2
 
@@ -913,7 +998,6 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
 
     def set_low_pass_taps(self, low_pass_taps):
         self.low_pass_taps = low_pass_taps
-        self.freq_xlating_fir_filter_xxx_0.set_taps((self.low_pass_taps))
 
     def get_freq_xlating(self):
         return self.freq_xlating
@@ -928,7 +1012,34 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
 
     def set_f_dev(self, f_dev):
         self.f_dev = f_dev
-        self.analog_quadrature_demod_cf_0.set_gain((self.samp_rate_dec)/(2*math.pi*self.f_dev/8.0)/10)
+        self.analog_quadrature_demod_cf_0.set_gain((self.samp_rate_dec)/(2*math.pi*self.f_dev/8.0)/7)
+
+    def get_cc_omega_lim(self):
+        return self.cc_omega_lim
+
+    def set_cc_omega_lim(self, cc_omega_lim):
+        self.cc_omega_lim = cc_omega_lim
+
+    def get_cc_mu_gain(self):
+        return self.cc_mu_gain
+
+    def set_cc_mu_gain(self, cc_mu_gain):
+        self.cc_mu_gain = cc_mu_gain
+        self.digital_clock_recovery_mm_xx_0.set_gain_mu(self.cc_mu_gain)
+
+    def get_cc_mu(self):
+        return self.cc_mu
+
+    def set_cc_mu(self, cc_mu):
+        self.cc_mu = cc_mu
+        self.digital_clock_recovery_mm_xx_0.set_mu(self.cc_mu)
+
+    def get_cc_gain(self):
+        return self.cc_gain
+
+    def set_cc_gain(self, cc_gain):
+        self.cc_gain = cc_gain
+        self.digital_clock_recovery_mm_xx_0.set_gain_omega(self.cc_gain)
 
 
 def argument_parser():
@@ -943,7 +1054,7 @@ def argument_parser():
         "-o", "--default-bin-file-sink", dest="default_bin_file_sink", type="string", default="/tmp/rx_data.bin",
         help="Set default_bin_file_sink [default=%default]")
     parser.add_option(
-        "-f", "--default-freq", dest="default_freq", type="intx", default=437500000,
+        "-f", "--default-freq", dest="default_freq", type="intx", default=433000000,
         help="Set default_freq [default=%default]")
     parser.add_option(
         "-g", "--default-gain", dest="default_gain", type="eng_float", default=eng_notation.num_to_str(16),
