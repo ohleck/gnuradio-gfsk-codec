@@ -119,7 +119,7 @@ def assemble_hdlc_packet(preambule, flag, data):
     flag_bin.frombytes(flag)
 
     # Create HDLC packet
-    bin_hdlc_packet_stuffed = flag_bin.to01() + bin_inner_hdlc_packet_stuffed + header_bin.to01()
+    bin_hdlc_packet_stuffed = flag_bin.to01() + bin_inner_hdlc_packet_stuffed + flag_bin.to01()
 
     # Encode packet as NRZI
     hdlc_packet_encoded = encode_nrzi(bin_hdlc_packet_stuffed)
