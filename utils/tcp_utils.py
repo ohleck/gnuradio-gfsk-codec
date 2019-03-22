@@ -60,7 +60,7 @@ class TCPClient(object):
         sent = self.s.send(data)
         return (sent != 0)
 
-    def receive_data(self, len=2048):
+    def receive_data(self, len=4096):
         r"""Receive data to the connected TCP port.
 
         Outputs:

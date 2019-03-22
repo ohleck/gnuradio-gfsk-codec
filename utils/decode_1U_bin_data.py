@@ -1,5 +1,5 @@
 from bitarray import bitarray
-from comm_utils import remove_stuffing, decode_nrzi, check_crc
+from comm_utils import remove_stuffing, decode_nrzi, check_crc, AX25Packet
 
 # Description:
 # This script loads a binary file and tries to decode the data packets.
@@ -12,7 +12,7 @@ FLAG = b'\x7E'
 FILE_PATH = '/tmp/rx_data.bin' # Path to read the binary data from
 
 # open file to read bytes
-f = open('/tmp/rx_data.bin', 'rb')
+f = open(FILE_PATH, 'rb')
 byte_arr = f.read()
 f.close()
 
@@ -20,16 +20,11 @@ f.close()
 bin_arr_raw_str = ''
 for by in byte_arr:
     bin_arr_raw_str += str(by)
-nrzi_bin_arr = bitarray(bin_arr_raw_str)
+bin_arr = bitarray(bin_arr_raw_str)
 
 # Convert FLAG bytes into bits
 flag_bin = bitarray()
 flag_bin.frombytes(FLAG)
-
-# Decode binary data according to NRZI scheme
-bin_arr_str = decode_nrzi(nrzi_bin_arr)
-
-bin_arr = bitarray(bin_arr_str)
 
 # Find occurrences of FLAG 
 flag_idxs = bin_arr.search(flag_bin)
@@ -47,25 +42,25 @@ for i in range(len(flag_idxs)-1):
     frame_bin_stuffed = bin_arr[idx+len(flag_bin):next_idx]
 
     # Work around FLAGS found too close to another
-    if len(frame_bin_stuffed) < 50:
+    if len(frame_bin_stuffed) < 200:
         continue
 
     # Remove stuffing from frames
     packet_bin = remove_stuffing(frame_bin_stuffed)
 
-    # Get the packet length (first position of data)
-    packet_length = int(packet_bin[:8], 2)
-    # If the length in the packet is equal to the packet length, increment packet counter
-    if len(packet_bin[:-16]) == packet_length * 8:
+    ax25_packet = AX25Packet(packet_bin)
+    
+    if (ax25_packet.header.dest_address == b'ABCDEF') & \
+        (ax25_packet.header.source_address == b'UVWXYZ'):
         received_packets += 1
 
     # Check if it's a valid CRC packet
-    valid_crc = check_crc(packet_bin)
-    if not valid_crc:
-        continue
+    if ax25_packet.valid:
+        print('Valid CRC found!')
+        valid_packets += 1
+
     
-    print('Valid CRC found!')
-    valid_packets += 1
+    # print(packet_barr.tobytes())
 
 print('Received Packets found:', received_packets)
 print('Valid Packets found:', valid_packets)

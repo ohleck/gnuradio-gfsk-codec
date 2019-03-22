@@ -1,6 +1,41 @@
 from bitarray import bitarray
 import struct
+from crccheck.crc import CrcX25, Crc16CcittFalse
 
+class AX25Packet():
+    """Class to connect to Cortex via its TCP-IP service ports."""
+
+    class AX25Header():
+
+        def __init__(self, header_bytes):
+            self.bytes = header_bytes
+            self.dest_address = header_bytes[:6]
+            self.dest_ssid = header_bytes[6]
+            self.source_address = header_bytes[7:13]
+            self.source_ssid = header_bytes[13]
+            self.control = header_bytes[14]
+            self.pid = header_bytes[15]
+
+    def __init__(self, bin_packet):
+        """Initialize tcp client.
+
+        Keyword arguments:
+        ip -- ip address of cortex in LAN [str] [ex: '192.168.0.100']
+        port -- tcp port of service [int] [ex: 3000 for monitor service]
+        """
+        self.bin_packet = bitarray(bin_packet)
+        self.byte_packet = self.bin_packet.tobytes()
+        self.header = self.AX25Header(self.byte_packet[:16])
+        self.data = self.byte_packet[16:-2]
+        self.crc = self.byte_packet[-2:]
+        crc = Crc16CcittFalse.calc(self.header.bytes + self.data)
+        if crc == int.from_bytes(self.crc, byteorder='big', signed=False):
+            self.valid = True
+        else:
+            self.valid = False
+
+    def __repr__(self):
+        return repr(self.byte_packet)
 
 def compute_crc(bin_string):
     """Compute the CRC-CCITT checksum.
@@ -69,6 +104,48 @@ def check_crc(bin_arr):
     crc_calc = compute_crc(payload_data_bin.to01())
 
     return (int(crc_bin.to01(), 2) == int.from_bytes(crc_calc, byteorder='big'))
+
+
+def assemble_raw_packet(data):
+    '''
+    Assemble a raw packet compatible with AX5043 radio. The packet is formed by:
+    Preamble LENGTH (1 byte) + DATA (n bytes) + CRC (2 bytes)
+    
+    LENGTH = Takes into account Length + Data bytes
+    CRC = Computed for Length and Data bytes (crc-16-genibus)
+
+    Additional info:
+    - The LENGTH DATA, DATA and CRC bytes are unstuffed
+
+    Keyword arguments:
+    data -- Data bytes [bytes]
+
+    Outputs:
+    packet -- Payload packet [bytes]
+
+    '''
+    # Compute payload length
+    payload_length = bitarray(bin(1 + len(data))[2:].zfill(8))
+    payload = payload_length.tobytes() + data
+
+    # Transform payload to bits
+    payload_bin = bitarray()
+    payload_bin.frombytes(payload)
+
+    # Compute Checksum
+    crc = compute_crc(payload_bin.to01())
+
+    # Transform checksum to bits
+    crc_bin = bitarray()
+    crc_bin.frombytes(crc)
+
+    # Create inner hdlc packet: payload + CRC
+    payload = payload_bin + crc_bin
+
+    packet_barr = bitarray(payload)
+    packet_bytes = packet_barr.tobytes()
+
+    return packet_bytes
 
 
 def assemble_hdlc_packet(preambule, flag, data):
@@ -264,6 +341,15 @@ if __name__ == "__main__":
     # valid_crc = check_crc(data_crc_bin.to01())
     # assert()
 
+    d_hex = b'\x41\x42\x43\x44\x45\x46\x00\x5A\x59\x55\x49\x4F\x50\x00\x00\x00\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x5E\x5B'
+    d_bin = bitarray()
+    d_bin.frombytes(d_hex)
+    data = bytearray.fromhex('414243444546005A5955494F5000000000010203040506070809')
+    crc = Crc16CcittFalse.calc(data)
+
+    ax_packet = AX25Packet(d_bin.to01())
+
+    print(crc)
 
     bin_arr = '0010111101000010'
     encoded = encode_nrzi(bin_arr)

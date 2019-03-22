@@ -120,7 +120,7 @@
     </param>
     <param>
       <key>alpha</key>
-      <value>0.5</value>
+      <value>0.3</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -375,7 +375,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>8</value>
+      <value>10</value>
     </param>
   </block>
   <block>
@@ -418,7 +418,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>2400</value>
+      <value>4950/2</value>
     </param>
   </block>
   <block>
@@ -613,7 +613,7 @@
     <key>digital_gmsk_mod</key>
     <param>
       <key>bt</key>
-      <value>0.35</value>
+      <value>1</value>
     </param>
     <param>
       <key>alias</key>
@@ -684,7 +684,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -759,7 +759,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>436000000</value>
+      <value>433000000</value>
     </param>
   </block>
   <block>

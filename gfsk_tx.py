@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: GFSK TX
-# Generated: Wed Feb 13 16:43:20 2019
+# Generated: Thu Mar 21 18:39:34 2019
 ##################################################
 
 from distutils.version import StrictVersion
@@ -20,6 +20,7 @@ if __name__ == '__main__':
 
 from PyQt5 import Qt
 from PyQt5 import Qt, QtCore
+from gnuradio import blocks
 from gnuradio import digital
 from gnuradio import eng_notation
 from gnuradio import filter
@@ -28,7 +29,6 @@ from gnuradio import iio
 from gnuradio import qtgui
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
-from grc_gnuradio import blks2 as grc_blks2
 from optparse import OptionParser
 import math
 import sip
@@ -38,7 +38,7 @@ from gnuradio import qtgui
 
 class gfsk_tx(gr.top_block, Qt.QWidget):
 
-    def __init__(self, baudrate=9600, default_attenuation=10, default_input=0, default_ip='127.0.0.1', default_port=5000, freq=433000000, samp_rate_tx=1920000, sdr_dev='uhd=0', default_dev=2400):
+    def __init__(self, baudrate=9600, default_attenuation=10, default_dev=4950/2, default_input=0, default_ip='127.0.0.1', default_port=5000, freq=433000000, samp_rate_tx=1920000, sdr_dev='uhd=0'):
         gr.top_block.__init__(self, "GFSK TX")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("GFSK TX")
@@ -71,13 +71,13 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
         ##################################################
         self.baudrate = baudrate
         self.default_attenuation = default_attenuation
+        self.default_dev = default_dev
         self.default_input = default_input
         self.default_ip = default_ip
         self.default_port = default_port
         self.freq = freq
         self.samp_rate_tx = samp_rate_tx
         self.sdr_dev = sdr_dev
-        self.default_dev = default_dev
 
         ##################################################
         # Variables
@@ -85,7 +85,7 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
         self.interp_tx = interp_tx = samp_rate_tx/baudrate
         self.sensitivity = sensitivity = 2*math.pi*default_dev/samp_rate_tx
 
-        self.rrc_taps = rrc_taps = firdes.root_raised_cosine(1, samp_rate_tx, interp_tx, 0.5, 88)
+        self.rrc_taps = rrc_taps = firdes.root_raised_cosine(1, samp_rate_tx, interp_tx, 0.3, 88)
 
 
         ##################################################
@@ -230,28 +230,22 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
         self.iio_fmcomms2_sink_0 = iio.fmcomms2_sink_f32c('ip:pluto.local', freq, samp_rate_tx, 1 - 1, 20000000, True, False, 0x8000, False, "A", default_attenuation, 10.0, '', True)
         self.fir_filter_xxx_0 = filter.fir_filter_ccc(1, (rrc_taps))
         self.fir_filter_xxx_0.declare_sample_delay(0)
-        self.digital_gfsk_mod_0 = digital.gfsk_mod(
+        self.digital_gmsk_mod_0 = digital.gmsk_mod(
         	samples_per_symbol=interp_tx,
-        	sensitivity=sensitivity,
-        	bt=0.5,
+        	bt=1,
         	verbose=False,
         	log=False,
         )
-        self.blks2_tcp_source = grc_blks2.tcp_source(
-        	itemsize=gr.sizeof_char*1,
-        	addr=default_ip,
-        	port=default_port,
-        	server=True,
-        )
+        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_char*1, '/tmp/tx_data.bin', True)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blks2_tcp_source, 0), (self.digital_gfsk_mod_0, 0))
-        self.connect((self.digital_gfsk_mod_0, 0), (self.fir_filter_xxx_0, 0))
-        self.connect((self.digital_gfsk_mod_0, 0), (self.qtgui_freq_sink_x_0, 0))
-        self.connect((self.digital_gfsk_mod_0, 0), (self.qtgui_time_sink_x_0, 0))
-        self.connect((self.digital_gfsk_mod_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
+        self.connect((self.blocks_file_source_0, 0), (self.digital_gmsk_mod_0, 0))
+        self.connect((self.digital_gmsk_mod_0, 0), (self.fir_filter_xxx_0, 0))
+        self.connect((self.digital_gmsk_mod_0, 0), (self.qtgui_freq_sink_x_0, 0))
+        self.connect((self.digital_gmsk_mod_0, 0), (self.qtgui_time_sink_x_0, 0))
+        self.connect((self.digital_gmsk_mod_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
         self.connect((self.fir_filter_xxx_0, 0), (self.iio_fmcomms2_sink_0, 0))
 
     def closeEvent(self, event):
@@ -272,6 +266,13 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
     def set_default_attenuation(self, default_attenuation):
         self.default_attenuation = default_attenuation
         self.iio_fmcomms2_sink_0.set_params(self.freq, self.samp_rate_tx, 20000000, "A", self.default_attenuation, 10.0, '', True)
+
+    def get_default_dev(self):
+        return self.default_dev
+
+    def set_default_dev(self, default_dev):
+        self.default_dev = default_dev
+        self.set_sensitivity(2*math.pi*self.default_dev/self.samp_rate_tx)
 
     def get_default_input(self):
         return self.default_input
@@ -303,8 +304,8 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
 
     def set_samp_rate_tx(self, samp_rate_tx):
         self.samp_rate_tx = samp_rate_tx
-        self.set_sensitivity(2*math.pi*self.default_dev/self.samp_rate_tx)
         self.set_interp_tx(self.samp_rate_tx/self.baudrate)
+        self.set_sensitivity(2*math.pi*self.default_dev/self.samp_rate_tx)
         self.qtgui_waterfall_sink_x_0.set_frequency_range(0, self.samp_rate_tx)
         self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate_tx)
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate_tx)
@@ -315,13 +316,6 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
 
     def set_sdr_dev(self, sdr_dev):
         self.sdr_dev = sdr_dev
-
-    def get_default_dev(self):
-        return self.default_dev
-
-    def set_default_dev(self, default_dev):
-        self.default_dev = default_dev
-        self.set_sensitivity(2*math.pi*self.default_dev/self.samp_rate_tx)
 
     def get_interp_tx(self):
         return self.interp_tx
@@ -352,6 +346,9 @@ def argument_parser():
         "-g", "--default-attenuation", dest="default_attenuation", type="intx", default=10,
         help="Set Input [default=%default]")
     parser.add_option(
+        "-j", "--default-dev", dest="default_dev", type="intx", default=4950/2,
+        help="Set Input [default=%default]")
+    parser.add_option(
         "-q", "--default-input", dest="default_input", type="intx", default=0,
         help="Set Input [default=%default]")
     parser.add_option(
@@ -369,9 +366,6 @@ def argument_parser():
     parser.add_option(
         "-d", "--sdr-dev", dest="sdr_dev", type="string", default='uhd=0',
         help="Set SDR Device [default=%default]")
-    parser.add_option(
-        "-j", "--default-dev", dest="default_dev", type="intx", default=2400,
-        help="Set Input [default=%default]")
     return parser
 
 
@@ -386,7 +380,7 @@ def main(top_block_cls=gfsk_tx, options=None):
         Qt.QApplication.setGraphicsSystem(style)
     qapp = Qt.QApplication(sys.argv)
 
-    tb = top_block_cls(baudrate=options.baudrate, default_attenuation=options.default_attenuation, default_input=options.default_input, default_ip=options.default_ip, default_port=options.default_port, freq=options.freq, samp_rate_tx=options.samp_rate_tx, sdr_dev=options.sdr_dev, default_dev=options.default_dev)
+    tb = top_block_cls(baudrate=options.baudrate, default_attenuation=options.default_attenuation, default_dev=options.default_dev, default_input=options.default_input, default_ip=options.default_ip, default_port=options.default_port, freq=options.freq, samp_rate_tx=options.samp_rate_tx, sdr_dev=options.sdr_dev)
     tb.start()
     tb.show()
 

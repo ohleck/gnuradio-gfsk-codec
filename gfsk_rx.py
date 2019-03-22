@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: GFSK Receiver
-# Generated: Wed Feb 13 17:38:10 2019
+# Generated: Thu Mar 21 21:31:44 2019
 ##################################################
 
 from distutils.version import StrictVersion
@@ -41,7 +41,7 @@ from gnuradio import qtgui
 
 class gfsk_rx(gr.top_block, Qt.QWidget):
 
-    def __init__(self, default_bandwidth=20e3, default_baud=9600, default_bin_file_sink="/tmp/rx_data.bin", default_freq=433000000, default_gain=16, default_ip='127.0.0.1', default_port=5000, default_samp=1920000, sdr_dev="rtl=0", default_dev=2400):
+    def __init__(self, default_bandwidth=20e3, default_baud=9600, default_bin_file_sink="/tmp/rx_data.bin", default_dev=2400, default_freq=433000000, default_gain=16, default_ip='127.0.0.1', default_port=5000, default_samp=1920000, sdr_dev="rtl=0"):
         gr.top_block.__init__(self, "GFSK Receiver")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("GFSK Receiver")
@@ -75,13 +75,13 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.default_bandwidth = default_bandwidth
         self.default_baud = default_baud
         self.default_bin_file_sink = default_bin_file_sink
+        self.default_dev = default_dev
         self.default_freq = default_freq
         self.default_gain = default_gain
         self.default_ip = default_ip
         self.default_port = default_port
         self.default_samp = default_samp
         self.sdr_dev = sdr_dev
-        self.default_dev = default_dev
 
         ##################################################
         # Variables
@@ -101,7 +101,7 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
 
         self.low_pass_taps = low_pass_taps = firdes.low_pass(1.0, default_samp, 100000, 20000, firdes.WIN_HAMMING, 6.76)
 
-        self.freq_xlating = freq_xlating = 100000
+        self.freq_xlating = freq_xlating = 0
         self.cc_omega_lim = cc_omega_lim = 0.002
         self.cc_mu_gain = cc_mu_gain = 0.175
         self.cc_mu = cc_mu = 0.5
@@ -886,6 +886,13 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
     def set_default_bin_file_sink(self, default_bin_file_sink):
         self.default_bin_file_sink = default_bin_file_sink
 
+    def get_default_dev(self):
+        return self.default_dev
+
+    def set_default_dev(self, default_dev):
+        self.default_dev = default_dev
+        self.analog_quadrature_demod_cf_0.set_gain((self.samp_rate_dec)/(2*math.pi*self.default_dev/8.0)/7)
+
     def get_default_freq(self):
         return self.default_freq
 
@@ -928,13 +935,6 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
 
     def set_sdr_dev(self, sdr_dev):
         self.sdr_dev = sdr_dev
-
-    def get_default_dev(self):
-        return self.default_dev
-
-    def set_default_dev(self, default_dev):
-        self.default_dev = default_dev
-        self.analog_quadrature_demod_cf_0.set_gain((self.samp_rate_dec)/(2*math.pi*self.default_dev/8.0)/7)
 
     def get_samp_rate_dec(self):
         return self.samp_rate_dec
@@ -1057,6 +1057,9 @@ def argument_parser():
         "-o", "--default-bin-file-sink", dest="default_bin_file_sink", type="string", default="/tmp/rx_data.bin",
         help="Set default_bin_file_sink [default=%default]")
     parser.add_option(
+        "-j", "--default-dev", dest="default_dev", type="intx", default=2400,
+        help="Set Input [default=%default]")
+    parser.add_option(
         "-f", "--default-freq", dest="default_freq", type="intx", default=433000000,
         help="Set default_freq [default=%default]")
     parser.add_option(
@@ -1074,9 +1077,6 @@ def argument_parser():
     parser.add_option(
         "-d", "--sdr-dev", dest="sdr_dev", type="string", default="rtl=0",
         help="Set sdr_dev [default=%default]")
-    parser.add_option(
-        "-j", "--default-dev", dest="default_dev", type="intx", default=2400,
-        help="Set Input [default=%default]")
     return parser
 
 
@@ -1091,7 +1091,7 @@ def main(top_block_cls=gfsk_rx, options=None):
         Qt.QApplication.setGraphicsSystem(style)
     qapp = Qt.QApplication(sys.argv)
 
-    tb = top_block_cls(default_bandwidth=options.default_bandwidth, default_baud=options.default_baud, default_bin_file_sink=options.default_bin_file_sink, default_freq=options.default_freq, default_gain=options.default_gain, default_ip=options.default_ip, default_port=options.default_port, default_samp=options.default_samp, sdr_dev=options.sdr_dev, default_dev=options.default_dev)
+    tb = top_block_cls(default_bandwidth=options.default_bandwidth, default_baud=options.default_baud, default_bin_file_sink=options.default_bin_file_sink, default_dev=options.default_dev, default_freq=options.default_freq, default_gain=options.default_gain, default_ip=options.default_ip, default_port=options.default_port, default_samp=options.default_samp, sdr_dev=options.sdr_dev)
     tb.start()
     tb.show()
 
