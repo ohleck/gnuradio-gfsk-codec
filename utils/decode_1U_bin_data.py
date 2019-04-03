@@ -42,22 +42,24 @@ for i in range(len(flag_idxs)-1):
     frame_bin_stuffed = bin_arr[idx+len(flag_bin):next_idx]
 
     # Work around FLAGS found too close to another
-    if len(frame_bin_stuffed) < 200:
+    if len(frame_bin_stuffed) < 50:
         continue
 
     # Remove stuffing from frames
     packet_bin = remove_stuffing(frame_bin_stuffed)
 
     ax25_packet = AX25Packet(packet_bin)
-    
+
+    # Check if it's a valid CRC packet
+    if not ax25_packet.valid:
+        continue
+
+    print('Valid CRC found!')
+    valid_packets += 1        
+
     if (ax25_packet.header.dest_address == b'ABCDEF') & \
         (ax25_packet.header.source_address == b'UVWXYZ'):
         received_packets += 1
-
-    # Check if it's a valid CRC packet
-    if ax25_packet.valid:
-        print('Valid CRC found!')
-        valid_packets += 1
 
     
     # print(packet_barr.tobytes())

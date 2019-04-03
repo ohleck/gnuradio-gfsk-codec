@@ -8,13 +8,24 @@ class AX25Packet():
     class AX25Header():
 
         def __init__(self, header_bytes):
+
+
             self.bytes = header_bytes
-            self.dest_address = header_bytes[:6]
-            self.dest_ssid = header_bytes[6]
-            self.source_address = header_bytes[7:13]
-            self.source_ssid = header_bytes[13]
-            self.control = header_bytes[14]
-            self.pid = header_bytes[15]
+            self.valid_header = self.parse_header()
+        
+        def parse_header(self):
+            if not len(self.bytes) == 16:
+                return False
+
+            self.dest_address = self.bytes[:6]
+            self.dest_ssid = self.bytes[6]
+            self.source_address = self.bytes[7:13]
+            self.source_ssid = self.bytes[13]
+            self.control = self.bytes[14]
+            self.pid = self.bytes[15]
+
+            return True
+
 
     def __init__(self, bin_packet):
         """Initialize tcp client.
@@ -25,14 +36,27 @@ class AX25Packet():
         """
         self.bin_packet = bitarray(bin_packet)
         self.byte_packet = self.bin_packet.tobytes()
-        self.header = self.AX25Header(self.byte_packet[:16])
-        self.data = self.byte_packet[16:-2]
         self.crc = self.byte_packet[-2:]
-        crc = Crc16CcittFalse.calc(self.header.bytes + self.data)
+        self.valid = self.check_crc()
+        
+    def check_crc(self):
+        crc = Crc16CcittFalse.calc(self.byte_packet[:-2])
         if crc == int.from_bytes(self.crc, byteorder='big', signed=False):
-            self.valid = True
+            return True
         else:
-            self.valid = False
+            return False
+    
+    def parse_header(self):
+        if self.valid:
+            self.header = self.AX25Header(self.byte_packet[:16])
+        else:
+            self.header = None
+    
+    def parse_data(self):
+        if self.valid:
+            self.data = self.byte_packet[16:-2]
+        else:
+            self.data = None
 
     def __repr__(self):
         return repr(self.byte_packet)
