@@ -50,8 +50,8 @@ class ProcessThread(threading.Thread):
             # if not bit_queue.empty():
             #     bit = bit_queue.get()
             if self.receive_task(270):
-                print("Enqueued packet")
-                print(self.rx_buffer.hex())
+                # print("Enqueued packet")
+                # print(self.rx_buffer.hex())
                 packet_queue.put(self.rx_buffer)
                 self.rx_buffer = b''
 
@@ -217,6 +217,8 @@ class TMThread(threading.Thread):
                 if ax25_packet.valid:
                     print('Valid CRC found!')
                     self.valid_packets += 1
+                    print("Raw Packet:")
+                    print(packet.hex())
 
 
 if __name__ == "__main__":
