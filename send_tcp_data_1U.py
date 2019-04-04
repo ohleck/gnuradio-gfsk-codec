@@ -14,6 +14,7 @@ CC1020_ISR_STATE_TX_DATA = 7
 CC1020_ISR_STATE_TX_STUF = 8
 
 packet_queue = Queue(maxsize=3)
+bit_str = ''
 
 class TransmitThread(threading.Thread):
 
@@ -107,7 +108,6 @@ class TransmitThread(threading.Thread):
             if (self.ax_counter == 5):
                 self.ax_counter = 0
                 self.taskState = CC1020_ISR_STATE_TX_STUF
-                return 0
 
             if (self.bit_counter == 8):
                 self.bit_counter = 0
@@ -128,16 +128,6 @@ class TransmitThread(threading.Thread):
 
         elif self.taskState == CC1020_ISR_STATE_TX_STUF:
             self.transmit_bit(0)
-            if (self.bit_counter == 8):
-                self.bit_counter = 0
-                self.frameIndex += 1
-                self.byte = self.tx_buffer[self.frameIndex] # Load next element
-                if (self.frameIndex > len(self.tx_buffer)-1):
-                    self.byte = 0x7E # Flag
-                    self.taskState = CC1020_ISR_STATE_TX_FLAG
-                    self.tx_buffer = None
-                    return 0
-
             self.taskState = CC1020_ISR_STATE_TX_DATA
             return 0
 
@@ -157,10 +147,10 @@ class TCThread(threading.Thread):
             print("adding data")
             sleep(1)
             # Payload with no stuffing
-            data = b'\x41\x42\x43\x44\x45\x46\xE0\x55\x56\x57\x58\x59\x5A\xE1\x02\xF0\x0A\x07\x67\x45\x23\x01\xBB\xAA\x01\x00\xA2\x03\x59\xA9'
+            # data = b'\x41\x42\x43\x44\x45\x46\xE0\x55\x56\x57\x58\x59\x5A\xE1\x02\xF0\x0A\x07\x67\x45\x23\x01\xBB\xAA\x01\x00\xA2\x03\x59\xA9'
 
             # Payload with stuffing
-            # data = b'\x41\x42\x43\x44\x45\x46\xE0\x55\x56\x57\x58\x59\x5A\xE1\x02\xF0\x0A\x07\x67\x45\x23\x01\xBB\xAA\x01\x00\xA2\x03\x98\xFB'
+            data = b'\x41\x42\x43\x44\x45\x46\xE0\x55\x56\x57\x58\x59\x5A\xE1\x03\xF0\x0A\x07\x67\x45\x23\x01\xBB\xAA\x01\x00\xA2\x03\x22\xC8'
 
             packet_queue.put(data)
 
