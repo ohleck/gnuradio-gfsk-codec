@@ -23,7 +23,6 @@ CC1020_ISR_STATE_WAIT_2ND_FLAG = 5
 CC1020_ISR_STATE_DELIVER_PACKET = 6
 
 packet_queue = Queue(maxsize=5)
-bit_queue = Queue(maxsize=2048)
 data_counter = 0 #  used for sweeping input data file, if used
 
 class ProcessThread(threading.Thread):
