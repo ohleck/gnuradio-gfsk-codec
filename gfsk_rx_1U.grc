@@ -923,7 +923,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1344, 620)</value>
+      <value>(1432, 620)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4206,7 +4206,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1560, 580)</value>
+      <value>(1640, 580)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -5851,11 +5851,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1376, 712)</value>
+      <value>(1272, 712)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -6094,12 +6094,6 @@
   </connection>
   <connection>
     <source_block_id>digital_binary_slicer_fb_0</source_block_id>
-    <sink_block_id>blocks_char_to_float_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>digital_binary_slicer_fb_0</source_block_id>
     <sink_block_id>satellites_nrzi_decode_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
@@ -6179,6 +6173,12 @@
   <connection>
     <source_block_id>satellites_nrzi_decode_0</source_block_id>
     <sink_block_id>blocks_pack_k_bits_bb_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>satellites_nrzi_decode_0_0</source_block_id>
+    <sink_block_id>blocks_char_to_float_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

@@ -93,7 +93,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(656, 180)</value>
+      <value>(520, 140)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -245,7 +245,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(0, 508)</value>
+      <value>(200, 508)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -388,49 +388,6 @@
     <param>
       <key>vlen</key>
       <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_pack_k_bits_bb</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(232, 524)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_pack_k_bits_bb_0</value>
-    </param>
-    <param>
-      <key>k</key>
-      <value>8</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
     </param>
   </block>
   <block>
@@ -758,7 +715,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(496, 212)</value>
+      <value>(472, 212)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1025,7 +982,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(488, 292)</value>
+      <value>(456, 292)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1056,7 +1013,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(488, 340)</value>
+      <value>(464, 340)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2087,7 +2044,7 @@
   </block>
   <connection>
     <source_block_id>blks2_tcp_source</source_block_id>
-    <sink_block_id>blocks_pack_k_bits_bb_0</sink_block_id>
+    <sink_block_id>digital_gfsk_mod_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2100,12 +2057,6 @@
   <connection>
     <source_block_id>blocks_file_source_0_0</source_block_id>
     <sink_block_id>blocks_unpack_k_bits_bb_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_pack_k_bits_bb_0</source_block_id>
-    <sink_block_id>digital_gfsk_mod_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

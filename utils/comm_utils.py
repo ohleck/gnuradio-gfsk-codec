@@ -38,6 +38,8 @@ class AX25Packet():
         self.byte_packet = self.bin_packet.tobytes()
         self.crc = self.byte_packet[-2:]
         self.valid = self.check_crc()
+        self.parse_header()
+        self.parse_data()
         
     def check_crc(self):
         crc = Crc16CcittFalse.calc(self.byte_packet[:-2])
