@@ -536,7 +536,7 @@
     </param>
     <param>
       <key>cutoff_freq</key>
-      <value>6000</value>
+      <value>9600</value>
     </param>
     <param>
       <key>_enabled</key>
