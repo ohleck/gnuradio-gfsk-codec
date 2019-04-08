@@ -105,9 +105,9 @@ class TransmitThread(threading.Thread):
 
         elif self.taskState == CC1020_ISR_STATE_TX_FLAG:
             if (self.byte & 0x80):
-                self.transmit_bit(1)
+                self.transmit_bit_nrzi(1)
             else:
-                self.transmit_bit(0)
+                self.transmit_bit_nrzi(0)
             self.bit_counter += 1
             if (self.bit_counter == 8):
                 self.bit_counter = 0
@@ -125,10 +125,10 @@ class TransmitThread(threading.Thread):
         elif self.taskState == CC1020_ISR_STATE_TX_DATA:
             if (self.byte & 0x80):
                 self.ax_counter += 1
-                self.transmit_bit(1)
+                self.transmit_bit_nrzi(1)
             else:
                 self.ax_counter = 0
-                self.transmit_bit(0)
+                self.transmit_bit_nrzi(0)
 
             self.bit_counter += 1
             if (self.ax_counter == 5):
@@ -153,7 +153,7 @@ class TransmitThread(threading.Thread):
             return 0
 
         elif self.taskState == CC1020_ISR_STATE_TX_STUF:
-            self.transmit_bit(0)
+            self.transmit_bit_nrzi(0)
             self.taskState = CC1020_ISR_STATE_TX_DATA
             return 0
 

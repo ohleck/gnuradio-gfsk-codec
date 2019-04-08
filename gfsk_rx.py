@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: GFSK Receiver
-# Generated: Mon Apr  8 19:36:37 2019
+# Generated: Mon Apr  8 19:41:34 2019
 ##################################################
 
 from distutils.version import StrictVersion
@@ -179,6 +179,7 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.controls_grid_layout_1.addWidget(self._cc_mu_win, 0, 1, 1, 1)
         [self.controls_grid_layout_1.setRowStretch(r,1) for r in range(0,1)]
         [self.controls_grid_layout_1.setColumnStretch(c,1) for c in range(1,2)]
+        self.satellites_nrzi_decode_0_0 = satellites.nrzi_decode()
         self.qtgui_waterfall_sink_x_0_0_0_0_0 = qtgui.waterfall_sink_f(
         	1024, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -798,7 +799,7 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_char_to_float_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0_0_0, 1))
         self.connect((self.blocks_pack_k_bits_bb_0_0, 0), (self.blks2_tcp_sink_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_char_to_float_0, 0))
-        self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_pack_k_bits_bb_0_0, 0))
+        self.connect((self.digital_binary_slicer_fb_0, 0), (self.satellites_nrzi_decode_0_0, 0))
         self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.digital_binary_slicer_fb_0, 0))
         self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0_0_0, 0))
         self.connect((self.fir_filter_xxx_0_0, 0), (self.blocks_add_const_vxx_0, 0))
@@ -810,6 +811,7 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.connect((self.iio_fmcomms2_source_0, 0), (self.qtgui_freq_sink_x_0_0_1, 0))
         self.connect((self.iio_fmcomms2_source_0, 0), (self.qtgui_time_sink_x_0_0_0, 0))
         self.connect((self.iio_fmcomms2_source_0, 0), (self.qtgui_waterfall_sink_x_0_0, 0))
+        self.connect((self.satellites_nrzi_decode_0_0, 0), (self.blocks_pack_k_bits_bb_0_0, 0))
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "gfsk_rx")
