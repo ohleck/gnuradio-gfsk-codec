@@ -88,9 +88,9 @@ class TransmitThread(threading.Thread):
 
         elif self.taskState == CC1020_ISR_STATE_TX_PREAMBLE:
             if (self.byte & 0x80):
-                self.transmit_bit_nrzi(1)
+                self.transmit_bit(1)
             else:
-                self.transmit_bit_nrzi(0)
+                self.transmit_bit(0)
             self.bit_counter += 1
             if (self.bit_counter == 8):
                 self.bit_counter = 0
@@ -175,7 +175,7 @@ class TCThread(threading.Thread):
         while(1):
             self.n_packets += 1
             print("Adding data N#: ", self.n_packets)
-            sleep(1)
+            sleep(0.2)
             # Payload with no stuffing
             data = b'\x41\x42\x43\x44\x45\x46\xE0\x55\x56\x57\x58\x59\x5A\xE1\x02\xF0\x0A\x07\x67\x45\x23\x01\xBB\xAA\x01\x00\xA2\x03\x59\xA9'
 
