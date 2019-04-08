@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: GFSK TX
-# Generated: Thu Mar 21 18:39:34 2019
+# Generated: Mon Apr  8 18:23:48 2019
 ##################################################
 
 from distutils.version import StrictVersion
@@ -20,7 +20,6 @@ if __name__ == '__main__':
 
 from PyQt5 import Qt
 from PyQt5 import Qt, QtCore
-from gnuradio import blocks
 from gnuradio import digital
 from gnuradio import eng_notation
 from gnuradio import filter
@@ -29,6 +28,8 @@ from gnuradio import iio
 from gnuradio import qtgui
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
+from gnuradio.qtgui import Range, RangeWidget
+from grc_gnuradio import blks2 as grc_blks2
 from optparse import OptionParser
 import math
 import sip
@@ -87,10 +88,22 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
 
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(1, samp_rate_tx, interp_tx, 0.3, 88)
 
+        self.freq_offset = freq_offset = 0
+        self.attenuation = attenuation = default_attenuation
 
         ##################################################
         # Blocks
         ##################################################
+        self._freq_offset_range = Range(-20000, 20000, 100, 0, 200)
+        self._freq_offset_win = RangeWidget(self._freq_offset_range, self.set_freq_offset, 'Signal Frequency Offset', "counter_slider", int)
+        self.top_grid_layout.addWidget(self._freq_offset_win, 0, 3, 1, 3)
+        [self.top_grid_layout.setRowStretch(r,1) for r in range(0,1)]
+        [self.top_grid_layout.setColumnStretch(c,1) for c in range(3,6)]
+        self._attenuation_range = Range(0, 100, 1, default_attenuation, 200)
+        self._attenuation_win = RangeWidget(self._attenuation_range, self.set_attenuation, 'Signal Attenuation', "counter_slider", int)
+        self.top_grid_layout.addWidget(self._attenuation_win, 0, 0, 1, 3)
+        [self.top_grid_layout.setRowStretch(r,1) for r in range(0,1)]
+        [self.top_grid_layout.setColumnStretch(c,1) for c in range(0,3)]
         self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
         	1024, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -179,8 +192,8 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_0.set_line_alpha(i, alphas[i])
 
         self._qtgui_time_sink_x_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_time_sink_x_0_win, 0, 0, 1, 3)
-        [self.top_grid_layout.setRowStretch(r,1) for r in range(0,1)]
+        self.top_grid_layout.addWidget(self._qtgui_time_sink_x_0_win, 1, 0, 1, 3)
+        [self.top_grid_layout.setRowStretch(r,1) for r in range(1,2)]
         [self.top_grid_layout.setColumnStretch(c,1) for c in range(0,3)]
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
         	1024, #size
@@ -224,28 +237,34 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
             self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
 
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_win, 0, 3, 1, 3)
-        [self.top_grid_layout.setRowStretch(r,1) for r in range(0,1)]
+        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_win, 1, 3, 1, 3)
+        [self.top_grid_layout.setRowStretch(r,1) for r in range(1,2)]
         [self.top_grid_layout.setColumnStretch(c,1) for c in range(3,6)]
-        self.iio_fmcomms2_sink_0 = iio.fmcomms2_sink_f32c('ip:pluto.local', freq, samp_rate_tx, 1 - 1, 20000000, True, False, 0x8000, False, "A", default_attenuation, 10.0, '', True)
+        self.iio_fmcomms2_sink_0 = iio.fmcomms2_sink_f32c('ip:pluto.local', freq+freq_offset, samp_rate_tx, 1 - 1, 20000000, True, False, 0x8000, False, "A", attenuation, 10.0, '', True)
         self.fir_filter_xxx_0 = filter.fir_filter_ccc(1, (rrc_taps))
         self.fir_filter_xxx_0.declare_sample_delay(0)
-        self.digital_gmsk_mod_0 = digital.gmsk_mod(
+        self.digital_gfsk_mod_0 = digital.gfsk_mod(
         	samples_per_symbol=interp_tx,
-        	bt=1,
+        	sensitivity=sensitivity,
+        	bt=0.5,
         	verbose=False,
         	log=False,
         )
-        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_char*1, '/tmp/tx_data.bin', True)
+        self.blks2_tcp_source = grc_blks2.tcp_source(
+        	itemsize=gr.sizeof_char*1,
+        	addr=default_ip,
+        	port=default_port,
+        	server=True,
+        )
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_file_source_0, 0), (self.digital_gmsk_mod_0, 0))
-        self.connect((self.digital_gmsk_mod_0, 0), (self.fir_filter_xxx_0, 0))
-        self.connect((self.digital_gmsk_mod_0, 0), (self.qtgui_freq_sink_x_0, 0))
-        self.connect((self.digital_gmsk_mod_0, 0), (self.qtgui_time_sink_x_0, 0))
-        self.connect((self.digital_gmsk_mod_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
+        self.connect((self.blks2_tcp_source, 0), (self.digital_gfsk_mod_0, 0))
+        self.connect((self.digital_gfsk_mod_0, 0), (self.fir_filter_xxx_0, 0))
+        self.connect((self.digital_gfsk_mod_0, 0), (self.qtgui_freq_sink_x_0, 0))
+        self.connect((self.digital_gfsk_mod_0, 0), (self.qtgui_time_sink_x_0, 0))
+        self.connect((self.digital_gfsk_mod_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
         self.connect((self.fir_filter_xxx_0, 0), (self.iio_fmcomms2_sink_0, 0))
 
     def closeEvent(self, event):
@@ -265,7 +284,7 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
 
     def set_default_attenuation(self, default_attenuation):
         self.default_attenuation = default_attenuation
-        self.iio_fmcomms2_sink_0.set_params(self.freq, self.samp_rate_tx, 20000000, "A", self.default_attenuation, 10.0, '', True)
+        self.set_attenuation(self.default_attenuation)
 
     def get_default_dev(self):
         return self.default_dev
@@ -297,19 +316,19 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
 
     def set_freq(self, freq):
         self.freq = freq
-        self.iio_fmcomms2_sink_0.set_params(self.freq, self.samp_rate_tx, 20000000, "A", self.default_attenuation, 10.0, '', True)
+        self.iio_fmcomms2_sink_0.set_params(self.freq+self.freq_offset, self.samp_rate_tx, 20000000, "A", self.attenuation, 10.0, '', True)
 
     def get_samp_rate_tx(self):
         return self.samp_rate_tx
 
     def set_samp_rate_tx(self, samp_rate_tx):
         self.samp_rate_tx = samp_rate_tx
-        self.set_interp_tx(self.samp_rate_tx/self.baudrate)
         self.set_sensitivity(2*math.pi*self.default_dev/self.samp_rate_tx)
+        self.set_interp_tx(self.samp_rate_tx/self.baudrate)
         self.qtgui_waterfall_sink_x_0.set_frequency_range(0, self.samp_rate_tx)
         self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate_tx)
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate_tx)
-        self.iio_fmcomms2_sink_0.set_params(self.freq, self.samp_rate_tx, 20000000, "A", self.default_attenuation, 10.0, '', True)
+        self.iio_fmcomms2_sink_0.set_params(self.freq+self.freq_offset, self.samp_rate_tx, 20000000, "A", self.attenuation, 10.0, '', True)
 
     def get_sdr_dev(self):
         return self.sdr_dev
@@ -335,6 +354,20 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
     def set_rrc_taps(self, rrc_taps):
         self.rrc_taps = rrc_taps
         self.fir_filter_xxx_0.set_taps((self.rrc_taps))
+
+    def get_freq_offset(self):
+        return self.freq_offset
+
+    def set_freq_offset(self, freq_offset):
+        self.freq_offset = freq_offset
+        self.iio_fmcomms2_sink_0.set_params(self.freq+self.freq_offset, self.samp_rate_tx, 20000000, "A", self.attenuation, 10.0, '', True)
+
+    def get_attenuation(self):
+        return self.attenuation
+
+    def set_attenuation(self, attenuation):
+        self.attenuation = attenuation
+        self.iio_fmcomms2_sink_0.set_params(self.freq+self.freq_offset, self.samp_rate_tx, 20000000, "A", self.attenuation, 10.0, '', True)
 
 
 def argument_parser():
