@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: GFSK Receiver
-# Generated: Mon Apr  8 18:22:54 2019
+# Generated: Mon Apr  8 19:36:37 2019
 ##################################################
 
 from distutils.version import StrictVersion
@@ -34,6 +34,7 @@ from gnuradio.qtgui import Range, RangeWidget
 from grc_gnuradio import blks2 as grc_blks2
 from optparse import OptionParser
 import math
+import satellites
 import sip
 import sys
 from gnuradio import qtgui
@@ -96,7 +97,7 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(20, default_samp, interp_tx, 0.5, 88)
 
 
-        self.low_pass_taps_2 = low_pass_taps_2 = firdes.low_pass(1.0, samp_rate_dec, 6000, 1200, firdes.WIN_HAMMING, 6.76)
+        self.low_pass_taps_2 = low_pass_taps_2 = firdes.low_pass(1.0, samp_rate_dec, 9600, 1200, firdes.WIN_HAMMING, 6.76)
 
 
         self.low_pass_taps = low_pass_taps = firdes.low_pass(1.0, default_samp, 100000, 20000, firdes.WIN_HAMMING, 6.76)

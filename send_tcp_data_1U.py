@@ -28,9 +28,12 @@ class TransmitThread(threading.Thread):
         self.tx_buffer = None
         self.bit_counter = 0
         self.byte = 0 
-        self._last_bit = 0
+        self._last_bit = 1
         self._bit_in_byte_counter = 0
         self._out_byte = 0
+        self._preamble_byte = 0x7E
+
+        self.frame = []
 
         self.client = TCPClient(IP, PORT)
         # Connect to TCP server
@@ -41,18 +44,25 @@ class TransmitThread(threading.Thread):
             print('Failed to connect')
 
     def run(self):
+        t0 = time()
         while(1):
             if not packet_queue.empty():
                 self.tx_buffer = packet_queue.get()
-                print(self.tx_buffer)
-            
-            # if (t1 - t0) > 8.0/BAUD_RATE:
-            self.transmit_task()
+                print("Sending Data")
+                self.transmit_preamble()
+                while not self.transmit_packet(): pass
+                self.transmit_preamble()                
+                self.transmit_frame()
+
+
+    def transmit_frame(self):
+        sent = self.client.send_data(bytes(self.frame))
+        self.frame = []
+        return sent
 
     def transmit_byte(self):
-        sent = self.client.send_data(bytes([self._out_byte]))
+        self.frame.append(self._out_byte)
         self._out_byte = 0
-        return sent
 
     def transmit_bit_nrzi(self, out_bit):        
         if(out_bit == self._last_bit):
@@ -78,38 +88,26 @@ class TransmitThread(threading.Thread):
             self._bit_in_byte_counter = 0
             self.transmit_byte()
 
-    def transmit_task(self):
+    def transmit_preamble(self):
+        count = 0
+        while count < 20:
+            self._out_byte = 0x55            
+            self.transmit_byte()
+            count += 1
+
+    def transmit_packet(self):
        
         if self.taskState == CC1020_ISR_STATE_INIT:
             self.frameIndex = 0
-            self.taskState = CC1020_ISR_STATE_TX_PREAMBLE
-            self.byte = 0x55 #Preamble value
+            self.taskState = CC1020_ISR_STATE_TX_FLAG
+            self.byte = 0x7E #Preamble value
             self.bit_counter = 0
 
-        elif self.taskState == CC1020_ISR_STATE_TX_PREAMBLE:
+        elif self.taskState == CC1020_ISR_STATE_TX_FLAG:
             if (self.byte & 0x80):
                 self.transmit_bit(1)
             else:
                 self.transmit_bit(0)
-            self.bit_counter += 1
-            if (self.bit_counter == 8):
-                self.bit_counter = 0
-                self.byte = 0x55 # Preamble value
-                if self.tx_buffer is not None:
-                    print("there is data")
-                    self.byte = 0x7E # Flag
-                    self.taskState = CC1020_ISR_STATE_TX_FLAG
-                    return 0
-            else:
-                self.byte <<= 1
-
-            return 0
-
-        elif self.taskState == CC1020_ISR_STATE_TX_FLAG:
-            if (self.byte & 0x80):
-                self.transmit_bit_nrzi(1)
-            else:
-                self.transmit_bit_nrzi(0)
             self.bit_counter += 1
             if (self.bit_counter == 8):
                 self.bit_counter = 0
@@ -127,10 +125,10 @@ class TransmitThread(threading.Thread):
         elif self.taskState == CC1020_ISR_STATE_TX_DATA:
             if (self.byte & 0x80):
                 self.ax_counter += 1
-                self.transmit_bit_nrzi(1)
+                self.transmit_bit(1)
             else:
                 self.ax_counter = 0
-                self.transmit_bit_nrzi(0)
+                self.transmit_bit(0)
 
             self.bit_counter += 1
             if (self.ax_counter == 5):
@@ -155,7 +153,7 @@ class TransmitThread(threading.Thread):
             return 0
 
         elif self.taskState == CC1020_ISR_STATE_TX_STUF:
-            self.transmit_bit_nrzi(0)
+            self.transmit_bit(0)
             self.taskState = CC1020_ISR_STATE_TX_DATA
             return 0
 
@@ -175,7 +173,7 @@ class TCThread(threading.Thread):
         while(1):
             self.n_packets += 1
             print("Adding data N#: ", self.n_packets)
-            sleep(0.2)
+            sleep(1)
             # Payload with no stuffing
             data = b'\x41\x42\x43\x44\x45\x46\xE0\x55\x56\x57\x58\x59\x5A\xE1\x02\xF0\x0A\x07\x67\x45\x23\x01\xBB\xAA\x01\x00\xA2\x03\x59\xA9'
 
