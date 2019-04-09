@@ -93,7 +93,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -101,7 +101,7 @@
     </param>
     <param>
       <key>gui_hint</key>
-      <value>controls@1: 0,0,1,1</value>
+      <value>controls@2: 0,0,1,1</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -164,7 +164,7 @@
     </param>
     <param>
       <key>gui_hint</key>
-      <value>controls@1: 0,1,1,1</value>
+      <value>controls@2: 0,1,1,1</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -227,7 +227,7 @@
     </param>
     <param>
       <key>gui_hint</key>
-      <value>controls@1: 0,2,1,1</value>
+      <value>controls@2: 0,2,1,1</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -290,7 +290,7 @@
     </param>
     <param>
       <key>gui_hint</key>
-      <value>controls@1: 0,3,1,1</value>
+      <value>controls@2: 0,3,1,1</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -368,7 +368,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>-0.0</value>
+      <value>(samp_rate_dec)/(2*math.pi*default_dev/4.0)/4</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -381,6 +381,69 @@
     <param>
       <key>gui_hint</key>
       <value>controls@1: 0,0,1,1</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>demod_gain</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Demodulator Gain</value>
+    </param>
+    <param>
+      <key>min_len</key>
+      <value>200</value>
+    </param>
+    <param>
+      <key>orient</key>
+      <value>Qt.Horizontal</value>
+    </param>
+    <param>
+      <key>start</key>
+      <value>0.1</value>
+    </param>
+    <param>
+      <key>step</key>
+      <value>0.1</value>
+    </param>
+    <param>
+      <key>stop</key>
+      <value>20</value>
+    </param>
+    <param>
+      <key>rangeType</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>widget</key>
+      <value>counter_slider</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_qtgui_range</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1312, 276)</value>
+    </param>
+    <param>
+      <key>gui_hint</key>
+      <value>controls@1: 0,1,1,1</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -424,6 +487,69 @@
     </param>
   </block>
   <block>
+    <key>variable_qtgui_range</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>2200</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1312, 140)</value>
+    </param>
+    <param>
+      <key>gui_hint</key>
+      <value>controls@0: 0,1,1,1</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>freq_offset</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Signal Frequency Offset</value>
+    </param>
+    <param>
+      <key>min_len</key>
+      <value>200</value>
+    </param>
+    <param>
+      <key>orient</key>
+      <value>Qt.Horizontal</value>
+    </param>
+    <param>
+      <key>start</key>
+      <value>-20000</value>
+    </param>
+    <param>
+      <key>step</key>
+      <value>100</value>
+    </param>
+    <param>
+      <key>stop</key>
+      <value>20000</value>
+    </param>
+    <param>
+      <key>rangeType</key>
+      <value>int</value>
+    </param>
+    <param>
+      <key>widget</key>
+      <value>counter_slider</value>
+    </param>
+  </block>
+  <block>
     <key>variable</key>
     <param>
       <key>comment</key>
@@ -447,7 +573,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>100000</value>
+      <value>000000</value>
     </param>
   </block>
   <block>
@@ -630,7 +756,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(640, 4)</value>
+      <value>(1168, 140)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -701,7 +827,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>default_baud*8</value>
+      <value>default_baud*6</value>
     </param>
   </block>
   <block>
@@ -759,6 +885,53 @@
     </param>
   </block>
   <block>
+    <key>analog_feedforward_agc_cc</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(728, 500)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>analog_feedforward_agc_cc_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>num_samples</key>
+      <value>1024</value>
+    </param>
+    <param>
+      <key>reference</key>
+      <value>1.0</value>
+    </param>
+  </block>
+  <block>
     <key>analog_quadrature_demod_cf</key>
     <param>
       <key>alias</key>
@@ -778,7 +951,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(288, 588)</value>
+      <value>(248, 588)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -786,7 +959,7 @@
     </param>
     <param>
       <key>gain</key>
-      <value>(samp_rate_dec)/(2*math.pi*default_dev/4.0)/7</value>
+      <value>demod_gain</value>
     </param>
     <param>
       <key>id</key>
@@ -1002,6 +1175,104 @@
     </param>
   </block>
   <block>
+    <key>blocks_file_sink</key>
+    <param>
+      <key>append</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>file</key>
+      <value>data_out.bin</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(640, 924)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_file_sink_1_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>short</value>
+    </param>
+    <param>
+      <key>unbuffered</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_float_to_short</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(440, 940)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_float_to_short_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>scale</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
     <key>blocks_pack_k_bits_bb</key>
     <param>
       <key>alias</key>
@@ -1021,7 +1292,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1520, 828)</value>
+      <value>(1472, 828)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1103,7 +1374,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(504, 4)</value>
+      <value>(568, 148)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -1123,7 +1394,7 @@
     </param>
     <param>
       <key>label1</key>
-      <value>Receiver DSP</value>
+      <value>Filter/Demod</value>
     </param>
     <param>
       <key>label10</key>
@@ -1167,7 +1438,7 @@
     </param>
     <param>
       <key>label2</key>
-      <value>Tab 2</value>
+      <value>Receiver DSP</value>
     </param>
     <param>
       <key>label3</key>
@@ -1199,7 +1470,7 @@
     </param>
     <param>
       <key>num_tabs</key>
-      <value>2</value>
+      <value>3</value>
     </param>
   </block>
   <block>
@@ -1869,7 +2140,7 @@
     </param>
     <param>
       <key>frequency</key>
-      <value>default_freq-freq_xlating</value>
+      <value>default_freq-freq_xlating+freq_offset</value>
     </param>
     <param>
       <key>manual_gain1</key>
@@ -2267,7 +2538,7 @@
     </param>
     <param>
       <key>gui_hint</key>
-      <value>signals@1: 0,3,1,3</value>
+      <value>signals@1: 1,0,1,3</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2562,11 +2833,11 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(480, 748)</value>
+      <value>(440, 748)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>signals@2: 0,3,1,3</value>
+      <value>signals@2: 1,0,1,3</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2861,11 +3132,11 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(816, 756)</value>
+      <value>(840, 772)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>signals@3: 0,3,1,3</value>
+      <value>signals@3: 1,0,1,3</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3519,7 +3790,7 @@
     </param>
     <param>
       <key>gui_hint</key>
-      <value>signals@1: 0,0,1,3</value>
+      <value>signals@1: 0,0,1,6</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3882,11 +4153,11 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(480, 668)</value>
+      <value>(440, 668)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>signals@2: 0,0,1,3</value>
+      <value>signals@2: 0,0,1,6</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4154,7 +4425,7 @@
     </param>
     <param>
       <key>size</key>
-      <value>t_points</value>
+      <value>t_points*2</value>
     </param>
     <param>
       <key>srate</key>
@@ -4616,11 +4887,11 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(816, 676)</value>
+      <value>(840, 692)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>signals@3: 0,0,1,3</value>
+      <value>signals@3: 0,0,1,6</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -5210,7 +5481,7 @@
     </param>
     <param>
       <key>gui_hint</key>
-      <value>signals@1: 2,0,1,6</value>
+      <value>signals@1: 1,3,1,3</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -5429,11 +5700,11 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(480, 844)</value>
+      <value>(440, 844)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>signals@2: 2,0,1,6</value>
+      <value>signals@2: 1,3,1,3</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -5652,11 +5923,11 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(816, 852)</value>
+      <value>(840, 868)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>signals@3: 2,0,1,6</value>
+      <value>signals@3: 1,3,1,3</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -5855,7 +6126,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>2</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -6077,6 +6348,12 @@
   </block>
   <connection>
     <source_block_id>analog_quadrature_demod_cf_0</source_block_id>
+    <sink_block_id>blocks_float_to_short_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>analog_quadrature_demod_cf_0</source_block_id>
     <sink_block_id>fir_filter_xxx_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
@@ -6128,6 +6405,12 @@
     <sink_block_id>qtgui_time_sink_x_0_0_0_0_0_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>1</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_float_to_short_0</source_block_id>
+    <sink_block_id>blocks_file_sink_1_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>blocks_pack_k_bits_bb_0_0</source_block_id>

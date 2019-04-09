@@ -193,7 +193,7 @@ class TMThread(threading.Thread):
         threading.Thread.__init__(self)
         self.name = name
         self.received_packets = 0
-        self.received_address_packets = 0
+        self.valid_length_packets = 0
         self.valid_packets = 0
 
     def run(self):
@@ -214,8 +214,17 @@ class TMThread(threading.Thread):
                 if ax25_packet.valid:
                     print('Valid CRC found!')
                     self.valid_packets += 1
-                    print("Raw Packet N#: ", self.valid_packets)
+                    print("Valid Packet N#: ", self.valid_packets)
                     print(packet.hex())
+                    print()
+
+                else:
+                    if len(ax25_packet.byte_packet) == 30:
+                        self.valid_length_packets += 1
+                        print("Invalid CRC but right length found: ")
+                        print(packet.hex())
+                        print("CRC Failed Packet N#: ", self.valid_length_packets)
+                        print()
 
 
 if __name__ == "__main__":

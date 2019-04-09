@@ -27,5 +27,5 @@ payload_barr_stuffed = add_stuffing(payload_barr.to01())
 payload_stuffed_bytes = bitarray(payload_barr_stuffed)
 packet = PREAMBLE + FLAG + payload_stuffed_bytes.tobytes() + FLAG + POSTAMBLE
 print(packet)
-f.write(packet)
+f.write(PREAMBLE)
 f.close()
