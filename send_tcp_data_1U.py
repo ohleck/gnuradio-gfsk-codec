@@ -3,6 +3,7 @@ from utils.tcp_utils import TCPClient
 import threading
 from time import sleep, time
 from queue import Queue
+from utils.comm_utils import AX25Packet
 
 IP = 'localhost'
 PORT = 5000
@@ -33,6 +34,11 @@ class TransmitThread(threading.Thread):
         self._out_byte = 0
         self._preamble_byte = 0x7E
 
+        # Scrambler variables
+        self.d_shift_register = 0
+        self.d_taps = [0] * 32
+        self.d_tap_count = 0
+
         self.frame = []
 
         self.client = TCPClient(IP, PORT)
@@ -44,7 +50,6 @@ class TransmitThread(threading.Thread):
             print('Failed to connect')
 
     def run(self):
-        t0 = time()
         while(1):
             if not packet_queue.empty():
                 self.tx_buffer = packet_queue.get()
@@ -55,8 +60,49 @@ class TransmitThread(threading.Thread):
                 self.transmit_frame()
 
 
+    def scrambler_init(self, tap_mask):
+        self.d_tap_count = 0
+
+        for i in range(32):
+            if (tap_mask & 0x01 == 1):
+                self.d_taps[self.d_tap_count] = i
+                self.d_tap_count += 1
+
+            tap_mask = tap_mask >> 1
+    
+        self.d_shift_register = 0
+
+    def scramble_frame(self, frame):
+        scrambled_frame = []
+
+        for byte in frame:
+            scrambled_byte = 0x00
+            for j in range(8):
+                unscrambled_bit = (byte >> j) & 0x01
+                self.d_shift_register <<= 1
+    
+                scrambled_bit = unscrambled_bit
+                t=0
+                while t<self.d_tap_count:
+                    tap_bit = (self.d_shift_register >> self.d_taps[t]) & 0x01
+                    scrambled_bit = scrambled_bit ^ tap_bit
+                    t += 1
+    
+                self.d_shift_register |= scrambled_bit
+    
+                if (scrambled_bit):
+                    scrambled_byte |= (1 << j)
+                else:
+                    scrambled_byte &= ~(1 << j)
+
+            scrambled_frame.append(scrambled_byte)
+        
+        return scrambled_frame
+
     def transmit_frame(self):
-        sent = self.client.send_data(bytes(self.frame))
+        self.scrambler_init(0x21000)
+        scrambled_frame = self.scramble_frame(self.frame)
+        sent = self.client.send_data(bytes(scrambled_frame))
         self.frame = []
         return sent
 
@@ -90,7 +136,7 @@ class TransmitThread(threading.Thread):
 
     def transmit_preamble(self):
         count = 0
-        while count < 20:
+        while count < 50:
             self._out_byte = 0x55            
             self.transmit_byte()
             count += 1
@@ -175,22 +221,34 @@ class TCThread(threading.Thread):
             print("Adding data N#: ", self.n_packets)
             sleep(1)
             # Payload with no stuffing
-            data = b'\x41\x42\x43\x44\x45\x46\xE0\x55\x56\x57\x58\x59\x5A\xE1\x02\xF0\x0A\x07\x67\x45\x23\x01\xBB\xAA\x01\x00\xA2\x03\x59\xA9'
+            # data = b'\x41\x42\x43\x44\x45\x46\xE0\x55\x56\x57\x58\x59\x5A\xE1\x02\xF0\x0A\x07\x67\x45\x23\x01\xBB\xAA\x01\x00\xA2\x03\x59\xA9'
+            data = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xA8\xF2' 
+
+            # data_str = ''
+            # for b in data:
+            #     data_str += bin(b)[2:].zfill(8)
+
+            # ax25_packet = AX25Packet(data_str)
 
             # Payload with stuffing
-            # data = b'\x41\x42\x43\x44\x45\x46\xE0\x55\x56\x57\x58\x59\x5A\xE1\x03\xF0\x0A\x07\x67\x45\x23\x01\xBB\xAA\x01\x00\xA2\x03\x22\xC8'
+            # data = b' 41 42\x43\x44\x45\x46\xE0\x55\x56\x57\x58\x59\x5A\xE1\x03\xF0\x0A\x07\x67\x45\x23\x01\xBB\xAA\x01\x00\xA2\x03\x22\xC8'
 
             packet_queue.put(data)
 
 
 if __name__ == "__main__":
-    try:
-        tx_thread = TransmitThread(name = "TransmitThread") 
-        tx_thread.start()
-        tc_thread = TCThread(name = "TelecommandThread") 
-        tc_thread.start()
+    tx_thread = TransmitThread(name = "TransmitThread") 
+    tx_thread.start()
+    tc_thread = TCThread(name = "TelecommandThread") 
+    tc_thread.start()
 
-    except:
-        print("error")
-        # print('Received Packets found:', tx_thread.received_packets)
-        # print('Valid Packets found:', tx_thread.valid_packets
+    ## Tests
+    # data = [0x00, 0x00, 0x00, 0x7E, 0x7E, 0x7E, 0x7E, 0x7E, 0x00, 0x01, 0x02, 0x03]
+    # tx_thread.scrambler_init(0x21000)
+    # s_data = tx_thread.scramble_frame(data)
+    # for d in s_data:
+    #     print(hex(d))
+    # # print(hex(s_data))
+
+    # print('Received Packets found:', tx_thread.received_packets)
+    # print('Valid Packets found:', tx_thread.valid_packets

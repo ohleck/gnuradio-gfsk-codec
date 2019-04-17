@@ -4,7 +4,7 @@ from comm_utils import assemble_hdlc_packet, assemble_raw_packet, AX25Packet, ad
 # Description:
 # This script generates a binary file with sample packets to send to AX5043 radio. The packets are in HDLC frame format.
 
-PREAMBLE = b'\x55'*200
+PREAMBLE = b'\xFF'*200
 POSTAMBLE = b'\x55'*200
 FLAG = b'\x7E'
 FILE_PATH = '/tmp/tx_data.bin' # Path to write the binary data

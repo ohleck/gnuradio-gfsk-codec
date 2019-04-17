@@ -1,6 +1,6 @@
 from bitarray import bitarray
 import struct
-from crccheck.crc import CrcX25, Crc16CcittFalse
+from crccheck.crc import CrcX25, Crc16CcittFalse, Crc16Genibus
 
 class AX25Packet():
     """Class to connect to Cortex via its TCP-IP service ports."""
@@ -42,7 +42,7 @@ class AX25Packet():
         self.parse_data()
         
     def check_crc(self):
-        crc = Crc16CcittFalse.calc(self.byte_packet[:-2])
+        crc = Crc16Genibus.calc(self.byte_packet[:-2])
         if crc == int.from_bytes(self.crc, byteorder='big', signed=False):
             return True
         else:
@@ -377,11 +377,11 @@ if __name__ == "__main__":
 
     print(crc)
 
-    bin_arr = '0010111101000010'
-    encoded = encode_nrzi(bin_arr)
-    output = decode_nrzi(encoded)
-    print('Input:', bin_arr)
-    print('Encoded:', encoded)
+    bin_arr = '100000001010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101100100110011001100110011001100110011001100110011001100110011001100110011001110010110101010000110011111100111011111110'
+    # encoded = encode_nrzi(bin_arr)
+    output = decode_nrzi(bin_arr)
+    # print('Input:', bin_arr)
+    # print('Encoded:', encoded)
     print('Output:', output)
 
     # bin_arr = '111110111110101'

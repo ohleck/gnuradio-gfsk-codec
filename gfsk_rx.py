@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: GFSK Receiver
-# Generated: Tue Apr  9 09:50:41 2019
+# Generated: Tue Apr 16 16:17:12 2019
 ##################################################
 
 from distutils.version import StrictVersion
@@ -33,6 +33,7 @@ from gnuradio.filter import firdes
 from gnuradio.qtgui import Range, RangeWidget
 from grc_gnuradio import blks2 as grc_blks2
 from optparse import OptionParser
+import correctiq
 import math
 import satellites
 import sip
@@ -87,25 +88,25 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate_dec = samp_rate_dec = default_baud*6
+        self.samp_rate_dec = samp_rate_dec = default_baud*8
         self.interp_tx = interp_tx = default_samp/default_baud
         self.dec_rx = dec_rx = default_samp/samp_rate_dec
-        self.t_points = t_points = 5000
         self.sps_rx = sps_rx = interp_tx/dec_rx
+        self.t_points = t_points = 5000
         self.rx_gain = rx_gain = 64
 
-        self.rrc_taps = rrc_taps = firdes.root_raised_cosine(20, default_samp, interp_tx, 0.5, 88)
+        self.rrc_taps = rrc_taps = firdes.root_raised_cosine(1, samp_rate_dec, sps_rx, 0.3, 88)
 
 
         self.low_pass_taps_2 = low_pass_taps_2 = firdes.low_pass(1.0, samp_rate_dec, 9600, 1200, firdes.WIN_HAMMING, 6.76)
 
 
-        self.low_pass_taps = low_pass_taps = firdes.low_pass(1.0, default_samp, 100000, 20000, firdes.WIN_HAMMING, 6.76)
+        self.low_pass_taps = low_pass_taps = firdes.low_pass(1.0, default_samp, 150000, 20000, firdes.WIN_HAMMING, 6.76)
 
         self.freq_xlating = freq_xlating = 000000
         self.freq_offset = freq_offset = 2200
         self.filter_offset = filter_offset = 0
-        self.demod_gain = demod_gain = (samp_rate_dec)/(2*math.pi*default_dev/4.0)/4
+        self.demod_gain = demod_gain = (samp_rate_dec)/(2*math.pi*default_dev)
         self.cc_omega_lim = cc_omega_lim = 0.002
         self.cc_mu_gain = cc_mu_gain = 0.175
         self.cc_mu = cc_mu = 0.5
@@ -177,7 +178,7 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.controls_grid_layout_1.addWidget(self._filter_offset_win, 0, 1, 1, 1)
         [self.controls_grid_layout_1.setRowStretch(r,1) for r in range(0,1)]
         [self.controls_grid_layout_1.setColumnStretch(c,1) for c in range(1,2)]
-        self._demod_gain_range = Range(0.1, 20, 0.1, (samp_rate_dec)/(2*math.pi*default_dev/4.0)/4, 200)
+        self._demod_gain_range = Range(1, 100, 1, (samp_rate_dec)/(2*math.pi*default_dev), 200)
         self._demod_gain_win = RangeWidget(self._demod_gain_range, self.set_demod_gain, 'Demodulator Gain', "counter_slider", float)
         self.controls_grid_layout_1.addWidget(self._demod_gain_win, 0, 0, 1, 1)
         [self.controls_grid_layout_1.setRowStretch(r,1) for r in range(0,1)]
@@ -791,8 +792,10 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_ccc(dec_rx, (low_pass_taps), freq_xlating, default_samp)
         self.fir_filter_xxx_0_0 = filter.fir_filter_fff(1, (low_pass_taps_2))
         self.fir_filter_xxx_0_0.declare_sample_delay(0)
+        self.digital_descrambler_bb_0 = digital.descrambler_bb(0x21, 0x7f, 16)
         self.digital_clock_recovery_mm_xx_0 = digital.clock_recovery_mm_ff(sps_rx, 0.25*0.175*0.175, cc_mu, cc_mu_gain, cc_omega_lim)
         self.digital_binary_slicer_fb_0 = digital.binary_slicer_fb()
+        self.correctiq_correctiq_0 = correctiq.correctiq()
         self._cc_gain_range = Range(1e-3, 50e-3, 1e-3, 0.25*0.175*0.175, 200)
         self._cc_gain_win = RangeWidget(self._cc_gain_range, self.set_cc_gain, 'CC Omega Gain', "counter_slider", float)
         self.controls_grid_layout_2.addWidget(self._cc_gain_win, 0, 0, 1, 1)
@@ -822,16 +825,18 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_add_const_vxx_0, 0), (self.qtgui_waterfall_sink_x_0_0_0_0_0, 0))
         self.connect((self.blocks_char_to_float_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0_0_0, 1))
         self.connect((self.blocks_pack_k_bits_bb_0_0, 0), (self.blks2_tcp_sink_0, 0))
+        self.connect((self.correctiq_correctiq_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
+        self.connect((self.digital_binary_slicer_fb_0, 0), (self.digital_descrambler_bb_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.satellites_nrzi_decode_0, 0))
-        self.connect((self.digital_binary_slicer_fb_0, 0), (self.satellites_nrzi_decode_0_0, 0))
         self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.digital_binary_slicer_fb_0, 0))
         self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0_0_0, 0))
+        self.connect((self.digital_descrambler_bb_0, 0), (self.satellites_nrzi_decode_0_0, 0))
         self.connect((self.fir_filter_xxx_0_0, 0), (self.blocks_add_const_vxx_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.analog_quadrature_demod_cf_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.qtgui_freq_sink_x_0_0_1_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.qtgui_time_sink_x_0_0_0_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.qtgui_waterfall_sink_x_0_0_0, 0))
-        self.connect((self.iio_fmcomms2_source_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
+        self.connect((self.iio_fmcomms2_source_0, 0), (self.correctiq_correctiq_0, 0))
         self.connect((self.iio_fmcomms2_source_0, 0), (self.qtgui_freq_sink_x_0_0_1, 0))
         self.connect((self.iio_fmcomms2_source_0, 0), (self.qtgui_time_sink_x_0_0_0, 0))
         self.connect((self.iio_fmcomms2_source_0, 0), (self.qtgui_waterfall_sink_x_0_0, 0))
@@ -854,7 +859,7 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
 
     def set_default_baud(self, default_baud):
         self.default_baud = default_baud
-        self.set_samp_rate_dec(self.default_baud*6)
+        self.set_samp_rate_dec(self.default_baud*8)
         self.set_interp_tx(self.default_samp/self.default_baud)
 
     def get_default_bin_file_sink(self):
@@ -868,7 +873,7 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
 
     def set_default_dev(self, default_dev):
         self.default_dev = default_dev
-        self.set_demod_gain((self.samp_rate_dec)/(2*math.pi*self.default_dev/4.0)/4)
+        self.set_demod_gain((self.samp_rate_dec)/(2*math.pi*self.default_dev))
 
     def get_default_freq(self):
         return self.default_freq
@@ -918,7 +923,7 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
 
     def set_samp_rate_dec(self, samp_rate_dec):
         self.samp_rate_dec = samp_rate_dec
-        self.set_demod_gain((self.samp_rate_dec)/(2*math.pi*self.default_dev/4.0)/4)
+        self.set_demod_gain((self.samp_rate_dec)/(2*math.pi*self.default_dev))
         self.set_dec_rx(self.default_samp/self.samp_rate_dec)
         self.qtgui_waterfall_sink_x_0_0_0_0_0.set_frequency_range(0, self.samp_rate_dec)
         self.qtgui_waterfall_sink_x_0_0_0_0.set_frequency_range(0, self.samp_rate_dec)
@@ -945,18 +950,18 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.dec_rx = dec_rx
         self.set_sps_rx(self.interp_tx/self.dec_rx)
 
-    def get_t_points(self):
-        return self.t_points
-
-    def set_t_points(self, t_points):
-        self.t_points = t_points
-
     def get_sps_rx(self):
         return self.sps_rx
 
     def set_sps_rx(self, sps_rx):
         self.sps_rx = sps_rx
         self.digital_clock_recovery_mm_xx_0.set_omega(self.sps_rx)
+
+    def get_t_points(self):
+        return self.t_points
+
+    def set_t_points(self, t_points):
+        self.t_points = t_points
 
     def get_rx_gain(self):
         return self.rx_gain

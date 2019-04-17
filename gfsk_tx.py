@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: GFSK TX
-# Generated: Mon Apr  8 20:33:27 2019
+# Generated: Tue Apr 16 16:25:36 2019
 ##################################################
 
 from distutils.version import StrictVersion
@@ -30,8 +30,8 @@ from gnuradio import qtgui
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
 from gnuradio.qtgui import Range, RangeWidget
+from grc_gnuradio import blks2 as grc_blks2
 from optparse import OptionParser
-import correctiq
 import math
 import sip
 import sys
@@ -89,13 +89,13 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
 
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(1, samp_rate_tx, interp_tx, 0.3, 88)
 
-        self.freq_offset = freq_offset = 0
+        self.freq_offset = freq_offset = 1700
         self.attenuation = attenuation = default_attenuation
 
         ##################################################
         # Blocks
         ##################################################
-        self._freq_offset_range = Range(-20000, 20000, 100, 0, 200)
+        self._freq_offset_range = Range(-20000, 20000, 100, 1700, 200)
         self._freq_offset_win = RangeWidget(self._freq_offset_range, self.set_freq_offset, 'Signal Frequency Offset', "counter_slider", int)
         self.top_grid_layout.addWidget(self._freq_offset_win, 0, 3, 1, 3)
         [self.top_grid_layout.setRowStretch(r,1) for r in range(0,1)]
@@ -247,23 +247,26 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
         self.digital_gfsk_mod_0 = digital.gfsk_mod(
         	samples_per_symbol=interp_tx,
         	sensitivity=sensitivity,
-        	bt=0.3,
+        	bt=0.5,
         	verbose=False,
         	log=False,
         )
-        self.correctiq_correctiq_0 = correctiq.correctiq()
-        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_char*1, '/tmp/tx_data.bin', True)
+        self.blks2_tcp_source = grc_blks2.tcp_source(
+        	itemsize=gr.sizeof_char*1,
+        	addr=default_ip,
+        	port=default_port,
+        	server=True,
+        )
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_file_source_0, 0), (self.digital_gfsk_mod_0, 0))
-        self.connect((self.correctiq_correctiq_0, 0), (self.iio_fmcomms2_sink_0, 0))
+        self.connect((self.blks2_tcp_source, 0), (self.digital_gfsk_mod_0, 0))
         self.connect((self.digital_gfsk_mod_0, 0), (self.fir_filter_xxx_0, 0))
         self.connect((self.digital_gfsk_mod_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.digital_gfsk_mod_0, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.digital_gfsk_mod_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
-        self.connect((self.fir_filter_xxx_0, 0), (self.correctiq_correctiq_0, 0))
+        self.connect((self.fir_filter_xxx_0, 0), (self.iio_fmcomms2_sink_0, 0))
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "gfsk_tx")

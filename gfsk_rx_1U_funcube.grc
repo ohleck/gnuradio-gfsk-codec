@@ -615,7 +615,7 @@
     </param>
     <param>
       <key>cutoff_freq</key>
-      <value>50000</value>
+      <value>20000</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -643,7 +643,7 @@
     </param>
     <param>
       <key>width</key>
-      <value>20000</value>
+      <value>5000</value>
     </param>
     <param>
       <key>win</key>
@@ -4562,7 +4562,7 @@
     </param>
     <param>
       <key>gui_hint</key>
-      <value>signals@4: 0,0,2,6</value>
+      <value>signals@4: 0,0,1,6</value>
     </param>
     <param>
       <key>_rotation</key>
