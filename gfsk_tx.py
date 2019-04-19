@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: GFSK TX
-# Generated: Tue Apr 16 16:25:36 2019
+# Generated: Fri Apr 19 10:54:45 2019
 ##################################################
 
 from distutils.version import StrictVersion
@@ -20,7 +20,6 @@ if __name__ == '__main__':
 
 from PyQt5 import Qt
 from PyQt5 import Qt, QtCore
-from gnuradio import blocks
 from gnuradio import digital
 from gnuradio import eng_notation
 from gnuradio import filter
