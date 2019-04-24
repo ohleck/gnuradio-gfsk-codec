@@ -111,6 +111,7 @@ class TransmitThread(threading.Thread):
             self.taskState = CC1020_ISR_STATE_TX_FLAG
             self.byte = 0x7E #Preamble value
             self.bit_counter = 0
+            self._bit_in_byte_counter = 0
 
         elif self.taskState == CC1020_ISR_STATE_TX_FLAG:
             if (self.byte & 0x80):
