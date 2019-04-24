@@ -3,7 +3,11 @@ from utils.tcp_utils import TCPClient
 import threading
 from time import sleep, time
 from queue import Queue
-from utils.comm_utils import AX25Packet
+from utils.ax25.ax25 import AX25Packet
+from utils.ax25.rob1c_packet_structures import Ax25Data, TelemetryFrame
+# from utils.ax25.rob1c_packets import AX_PACKET_ACK_TO_SAT
+from utils.ax25.rob1c_packet_structures import Ax25Data, TelemetryFrame, ReplyFrame
+from utils.ax25.rob1c_parameters import *
 
 IP = 'localhost'
 PORT = 5000
@@ -55,53 +59,12 @@ class TransmitThread(threading.Thread):
                 self.tx_buffer = packet_queue.get()
                 print("Sending Data")
                 self.transmit_preamble()
+                self._last_bit = 1
                 while not self.transmit_packet(): pass
                 self.transmit_preamble()                
                 self.transmit_frame()
 
-
-    def scrambler_init(self, tap_mask):
-        self.d_tap_count = 0
-
-        for i in range(32):
-            if (tap_mask & 0x01 == 1):
-                self.d_taps[self.d_tap_count] = i
-                self.d_tap_count += 1
-
-            tap_mask = tap_mask >> 1
-    
-        self.d_shift_register = 0
-
-    def scramble_frame(self, frame):
-        scrambled_frame = []
-
-        for byte in frame:
-            scrambled_byte = 0x00
-            for j in range(8):
-                unscrambled_bit = (byte >> j) & 0x01
-                self.d_shift_register <<= 1
-    
-                scrambled_bit = unscrambled_bit
-                t=0
-                while t<self.d_tap_count:
-                    tap_bit = (self.d_shift_register >> self.d_taps[t]) & 0x01
-                    scrambled_bit = scrambled_bit ^ tap_bit
-                    t += 1
-    
-                self.d_shift_register |= scrambled_bit
-    
-                if (scrambled_bit):
-                    scrambled_byte |= (1 << j)
-                else:
-                    scrambled_byte &= ~(1 << j)
-
-            scrambled_frame.append(scrambled_byte)
-        
-        return scrambled_frame
-
     def transmit_frame(self):
-        # self.scrambler_init(0x21000)
-        # scrambled_frame = self.scramble_frame(self.frame)
         sent = self.client.send_data(bytes(self.frame))
         self.frame = []
         return sent
@@ -219,14 +182,14 @@ class TCThread(threading.Thread):
         while(1):
             self.n_packets += 1
             print("Adding data N#: ", self.n_packets)
-            sleep(0.5)
+            sleep(1)
             # input()
             # Payload with no stuffing
             # Telemetry Data
-            data = b'\x41\x42\x43\x44\x45\x46\xE0\x55\x56\x57\x58\x59\x5A\xE1\x02\xF0\x0A\x07\x67\x45\x23\x01\xBB\xAA\x01\x00\xA2\x03\xA6\x56'
+            # data = b'\x41\x42\x43\x44\x45\x46\xE0\x55\x56\x57\x58\x59\x5A\xE1\x02\xF0\x0A\x07\x67\x45\x23\x01\xBB\xAA\x01\x00\xA2\x03\xA6\x56'
 
-            # Reply Packet - ACK
-            data = b'\x41\x42\x43\x44\x45\x46\xE0\x55\x56\x57\x58\x59\x5A\xE1\x02\xF0\x05\x0B\x0A\x07\x67\x45\x11\x93\xF1'
+            # # Reply Packet - ACK
+            # data = b'\x41\x42\x43\x44\x45\x46\xE0\x55\x56\x57\x58\x59\x5A\xE1\x02\xF0\x05\x0B\x0A\x07\x67\x45\x11\x93\xF1'
 
             # data = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xA8\xF2' 
 
@@ -238,16 +201,40 @@ class TCThread(threading.Thread):
 
             # Payload with stuffing
             # data = b' 41 42\x43\x44\x45\x46\xE0\x55\x56\x57\x58\x59\x5A\xE1\x03\xF0\x0A\x07\x67\x45\x23\x01\xBB\xAA\x01\x00\xA2\x03\x22\xC8'
-
-            packet_queue.put(data)
+            packet_queue.put(AX_PACKET_ACK_TO_SAT.byte_packet)
 
 
 if __name__ == "__main__":
+
+    ax_packet = AX25Packet()
+    ax_packet.header.dest_address = b'FX6FRA'
+    ax_packet.header.dest_ssid = b'\xE0'
+    ax_packet.header.source_address = b'F4KJX' + b'\x00'
+    ax_packet.header.source_ssid = b'\xE1'
+    ax_packet.header.control = b'\x03'
+    ax_packet.header.pid = b'\xF0'
+
+    frame = ReplyFrame()
+    frame.timestamp = b'\x67\x45\x23\x01'
+    frame.reply_type = REPLY_TYPE_ACK
+    frame.assemble()
+
+    ax_data = Ax25Data()
+    ax_data.frame_type = FRAME_TYPE_REPLY
+    ax_data.frame = frame
+    ax_data.assemble()
+
+    ax_packet.data = ax_data.bytes
+
+    ax_packet.assemble()
+
+    AX_PACKET_ACK_TO_SAT = ax_packet
+
     tx_thread = TransmitThread(name = "TransmitThread") 
     tx_thread.start()
     tc_thread = TCThread(name = "TelecommandThread") 
     tc_thread.start()
-
+    # print()
     ## Tests
     # data = [0x00, 0x00, 0x00, 0x7E, 0x7E, 0x7E, 0x7E, 0x7E, 0x00, 0x01, 0x02, 0x03]
     # tx_thread.scrambler_init(0x21000)

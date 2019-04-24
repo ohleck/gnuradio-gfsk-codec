@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: GFSK Receiver
-# Generated: Tue Apr 16 16:17:12 2019
+# Generated: Tue Apr 23 18:55:21 2019
 ##################################################
 
 from distutils.version import StrictVersion
@@ -43,7 +43,7 @@ from gnuradio import qtgui
 
 class gfsk_rx(gr.top_block, Qt.QWidget):
 
-    def __init__(self, default_bandwidth=20e3, default_baud=9600, default_bin_file_sink="/tmp/rx_data.bin", default_dev=4950/2, default_freq=433000000, default_gain=16, default_ip='127.0.0.1', default_port=7000, default_samp=1920000, sdr_dev="rtl=0"):
+    def __init__(self, default_bandwidth=20e3, default_baud=9600, default_bin_file_sink="/tmp/rx_data.bin", default_dev=4950/2, default_freq=435750000, default_gain=16, default_ip='127.0.0.1', default_port=7000, default_samp=1920000, sdr_dev="rtl=0"):
         gr.top_block.__init__(self, "GFSK Receiver")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("GFSK Receiver")
@@ -792,10 +792,8 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_ccc(dec_rx, (low_pass_taps), freq_xlating, default_samp)
         self.fir_filter_xxx_0_0 = filter.fir_filter_fff(1, (low_pass_taps_2))
         self.fir_filter_xxx_0_0.declare_sample_delay(0)
-        self.digital_descrambler_bb_0 = digital.descrambler_bb(0x21, 0x7f, 16)
         self.digital_clock_recovery_mm_xx_0 = digital.clock_recovery_mm_ff(sps_rx, 0.25*0.175*0.175, cc_mu, cc_mu_gain, cc_omega_lim)
         self.digital_binary_slicer_fb_0 = digital.binary_slicer_fb()
-        self.correctiq_correctiq_0 = correctiq.correctiq()
         self._cc_gain_range = Range(1e-3, 50e-3, 1e-3, 0.25*0.175*0.175, 200)
         self._cc_gain_win = RangeWidget(self._cc_gain_range, self.set_cc_gain, 'CC Omega Gain', "counter_slider", float)
         self.controls_grid_layout_2.addWidget(self._cc_gain_win, 0, 0, 1, 1)
@@ -825,18 +823,16 @@ class gfsk_rx(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_add_const_vxx_0, 0), (self.qtgui_waterfall_sink_x_0_0_0_0_0, 0))
         self.connect((self.blocks_char_to_float_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0_0_0, 1))
         self.connect((self.blocks_pack_k_bits_bb_0_0, 0), (self.blks2_tcp_sink_0, 0))
-        self.connect((self.correctiq_correctiq_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
-        self.connect((self.digital_binary_slicer_fb_0, 0), (self.digital_descrambler_bb_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.satellites_nrzi_decode_0, 0))
+        self.connect((self.digital_binary_slicer_fb_0, 0), (self.satellites_nrzi_decode_0_0, 0))
         self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.digital_binary_slicer_fb_0, 0))
         self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0_0_0, 0))
-        self.connect((self.digital_descrambler_bb_0, 0), (self.satellites_nrzi_decode_0_0, 0))
         self.connect((self.fir_filter_xxx_0_0, 0), (self.blocks_add_const_vxx_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.analog_quadrature_demod_cf_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.qtgui_freq_sink_x_0_0_1_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.qtgui_time_sink_x_0_0_0_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.qtgui_waterfall_sink_x_0_0_0, 0))
-        self.connect((self.iio_fmcomms2_source_0, 0), (self.correctiq_correctiq_0, 0))
+        self.connect((self.iio_fmcomms2_source_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
         self.connect((self.iio_fmcomms2_source_0, 0), (self.qtgui_freq_sink_x_0_0_1, 0))
         self.connect((self.iio_fmcomms2_source_0, 0), (self.qtgui_time_sink_x_0_0_0, 0))
         self.connect((self.iio_fmcomms2_source_0, 0), (self.qtgui_waterfall_sink_x_0_0, 0))
@@ -1061,7 +1057,7 @@ def argument_parser():
         "-j", "--default-dev", dest="default_dev", type="eng_float", default=eng_notation.num_to_str(4950/2),
         help="Set Input [default=%default]")
     parser.add_option(
-        "-f", "--default-freq", dest="default_freq", type="intx", default=433000000,
+        "-f", "--default-freq", dest="default_freq", type="intx", default=435750000,
         help="Set default_freq [default=%default]")
     parser.add_option(
         "-g", "--default-gain", dest="default_gain", type="eng_float", default=eng_notation.num_to_str(16),

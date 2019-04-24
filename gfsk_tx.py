@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: GFSK TX
-# Generated: Fri Apr 19 10:54:45 2019
+# Generated: Tue Apr 23 19:10:50 2019
 ##################################################
 
 from distutils.version import StrictVersion
@@ -39,7 +39,7 @@ from gnuradio import qtgui
 
 class gfsk_tx(gr.top_block, Qt.QWidget):
 
-    def __init__(self, baudrate=9600, default_attenuation=10, default_dev=4950/2, default_input=0, default_ip='127.0.0.1', default_port=5000, freq=433000000, samp_rate_tx=1920000, sdr_dev='uhd=0'):
+    def __init__(self, baudrate=9600, default_attenuation=10, default_dev=4950/2, default_input=0, default_ip='127.0.0.1', default_port=5000, freq=435750000, samp_rate_tx=1920000, sdr_dev='uhd=0'):
         gr.top_block.__init__(self, "GFSK TX")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("GFSK TX")
@@ -89,6 +89,7 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(1, samp_rate_tx, interp_tx, 0.3, 88)
 
         self.freq_offset = freq_offset = 1700
+        self.bt = bt = 0.5
         self.attenuation = attenuation = default_attenuation
 
         ##################################################
@@ -96,14 +97,19 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
         ##################################################
         self._freq_offset_range = Range(-20000, 20000, 100, 1700, 200)
         self._freq_offset_win = RangeWidget(self._freq_offset_range, self.set_freq_offset, 'Signal Frequency Offset', "counter_slider", int)
-        self.top_grid_layout.addWidget(self._freq_offset_win, 0, 3, 1, 3)
+        self.top_grid_layout.addWidget(self._freq_offset_win, 0, 2, 1, 2)
         [self.top_grid_layout.setRowStretch(r,1) for r in range(0,1)]
-        [self.top_grid_layout.setColumnStretch(c,1) for c in range(3,6)]
+        [self.top_grid_layout.setColumnStretch(c,1) for c in range(2,4)]
+        self._bt_range = Range(0, 1, 0.05, 0.5, 200)
+        self._bt_win = RangeWidget(self._bt_range, self.set_bt, 'Gaussian BT', "counter_slider", float)
+        self.top_grid_layout.addWidget(self._bt_win, 0, 4, 1, 2)
+        [self.top_grid_layout.setRowStretch(r,1) for r in range(0,1)]
+        [self.top_grid_layout.setColumnStretch(c,1) for c in range(4,6)]
         self._attenuation_range = Range(0, 100, 1, default_attenuation, 200)
         self._attenuation_win = RangeWidget(self._attenuation_range, self.set_attenuation, 'Signal Attenuation', "counter_slider", int)
-        self.top_grid_layout.addWidget(self._attenuation_win, 0, 0, 1, 3)
+        self.top_grid_layout.addWidget(self._attenuation_win, 0, 0, 1, 2)
         [self.top_grid_layout.setRowStretch(r,1) for r in range(0,1)]
-        [self.top_grid_layout.setColumnStretch(c,1) for c in range(0,3)]
+        [self.top_grid_layout.setColumnStretch(c,1) for c in range(0,2)]
         self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
         	1024, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -241,12 +247,10 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
         [self.top_grid_layout.setRowStretch(r,1) for r in range(1,2)]
         [self.top_grid_layout.setColumnStretch(c,1) for c in range(3,6)]
         self.iio_fmcomms2_sink_0 = iio.fmcomms2_sink_f32c('ip:pluto.local', freq+freq_offset, samp_rate_tx, 1 - 1, 20000000, True, False, 0x8000, False, "A", attenuation, 10.0, '', True)
-        self.fir_filter_xxx_0 = filter.fir_filter_ccc(1, (rrc_taps))
-        self.fir_filter_xxx_0.declare_sample_delay(0)
         self.digital_gfsk_mod_0 = digital.gfsk_mod(
         	samples_per_symbol=interp_tx,
         	sensitivity=sensitivity,
-        	bt=0.5,
+        	bt=bt,
         	verbose=False,
         	log=False,
         )
@@ -261,11 +265,10 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.connect((self.blks2_tcp_source, 0), (self.digital_gfsk_mod_0, 0))
-        self.connect((self.digital_gfsk_mod_0, 0), (self.fir_filter_xxx_0, 0))
+        self.connect((self.digital_gfsk_mod_0, 0), (self.iio_fmcomms2_sink_0, 0))
         self.connect((self.digital_gfsk_mod_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.digital_gfsk_mod_0, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.digital_gfsk_mod_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
-        self.connect((self.fir_filter_xxx_0, 0), (self.iio_fmcomms2_sink_0, 0))
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "gfsk_tx")
@@ -353,7 +356,6 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
 
     def set_rrc_taps(self, rrc_taps):
         self.rrc_taps = rrc_taps
-        self.fir_filter_xxx_0.set_taps((self.rrc_taps))
 
     def get_freq_offset(self):
         return self.freq_offset
@@ -361,6 +363,12 @@ class gfsk_tx(gr.top_block, Qt.QWidget):
     def set_freq_offset(self, freq_offset):
         self.freq_offset = freq_offset
         self.iio_fmcomms2_sink_0.set_params(self.freq+self.freq_offset, self.samp_rate_tx, 20000000, "A", self.attenuation, 10.0, '', True)
+
+    def get_bt(self):
+        return self.bt
+
+    def set_bt(self, bt):
+        self.bt = bt
 
     def get_attenuation(self):
         return self.attenuation
@@ -391,7 +399,7 @@ def argument_parser():
         "-p", "--default-port", dest="default_port", type="intx", default=5000,
         help="Set default_port [default=%default]")
     parser.add_option(
-        "-f", "--freq", dest="freq", type="intx", default=433000000,
+        "-f", "--freq", dest="freq", type="intx", default=435750000,
         help="Set frequency [default=%default]")
     parser.add_option(
         "-s", "--samp-rate-tx", dest="samp_rate_tx", type="intx", default=1920000,

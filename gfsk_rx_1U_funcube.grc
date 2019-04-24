@@ -615,7 +615,7 @@
     </param>
     <param>
       <key>cutoff_freq</key>
-      <value>20000</value>
+      <value>50000</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -994,7 +994,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1186,7 +1186,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>file</key>
@@ -1331,7 +1331,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1374,7 +1374,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1532,7 +1532,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>2</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1767,7 +1767,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>433000000</value>
+      <value>436750000</value>
     </param>
   </block>
   <block>
@@ -2068,7 +2068,7 @@
     </param>
     <param>
       <key>freq</key>
-      <value>433000000+freq_xlating</value>
+      <value>default_freq+freq_xlating</value>
     </param>
     <param>
       <key>ppm</key>
@@ -2076,7 +2076,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(0, 212)</value>
+      <value>(0, 220)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -6570,7 +6570,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>

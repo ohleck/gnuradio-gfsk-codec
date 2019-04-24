@@ -4,7 +4,8 @@ import threading
 from time import sleep
 from queue import Queue
 from bitarray import bitarray
-from utils.comm_utils import remove_stuffing, decode_nrzi, check_crc, AX25Packet
+from utils.comm_utils import remove_stuffing, decode_nrzi
+from utils.ax25.ax25 import AX25Packet
 import sys
 
 IP = 'localhost'
@@ -50,7 +51,7 @@ class ProcessThread(threading.Thread):
         while(1):
             # if not bit_queue.empty():
             #     bit = bit_queue.get()
-            if self.receive_task(270):
+            if self.receive_task(274):
                 # print("Enqueued packet")
                 # print(self.rx_buffer.hex())
                 packet_queue.put(self.rx_buffer)
@@ -212,7 +213,8 @@ class TMThread(threading.Thread):
                 if len(packet_bin_arr) < 20:
                     continue
 
-                ax25_packet = AX25Packet(packet_bin_arr.to01())
+                ax25_packet = AX25Packet()
+                ax25_packet.parse_bin(packet_bin_arr.to01())
 
                 # Check if it's a valid CRC packet
                 if ax25_packet.valid:
